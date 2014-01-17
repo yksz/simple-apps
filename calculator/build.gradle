@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.6
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    archiveName "${baseName}.${extension}"
+    manifest.attributes 'Main-Class': 'Main'
+    sourceSets.main.resources.exclude '*'
+}
+
+task release(dependsOn: assemble) << {
+    copy {
+        from libsDir
+        into distsDir
+    }
+}
