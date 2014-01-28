@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<entry key="Unknown">
+		image/weather/unknown.png
+	</entry>
+	<entry key="Clear">
+		image/weather/clear.png
+	</entry>
+	<entry key="Cloudy">
+		image/weather/cloudy.png
+	</entry>
+	<entry key="Rain">
+		image/weather/rain02.png
+	</entry>
+	<entry key="Rain Showers">
+		image/weather/flurries.png
+	</entry>
+	<entry key="Thunderstorm">
+		image/weather/thunderstorms01.png
+	</entry>
+	<entry key="Mostly Sunny">
+		image/weather/mostlysunny.png
+	</entry>
+	<entry key="Mostly Cloudy">
+		image/weather/cloudy.png
+	</entry>
+	<entry key="Partly Sunny">
+		image/weather/partlysunny.png
+	</entry>
+	<entry key="Partly Cloudy">
+		image/weather/partlycloudy.png
+	</entry>
+	<entry key="Chance of Rain">
+		image/weather/chancerain.png
+	</entry>
+	<entry key="Chance of Snow">
+		image/weather/chancesnow.png
+	</entry>
+	<entry key="Chance of Storm">
+		image/weather/chancestorm.png
+	</entry>
+</properties>

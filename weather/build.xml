@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="project" default="jar" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
+
+    <property environment="env" />
+
+	<!-- jar name -->
+    <property name="jar.name" value="weather.jar" />
+
+    <property name="base.dir" location="."  />
+    <property name="src.dir" location="src/main/java" />
+    <property name="dst.dir" location="build/distributions" />
+    <property name="lib.dir" location="lib" />
+    <property name="resources.dir" location="src/main/resources" />
+    <property name="classes.dir" location="build/classes/main" />
+    <property name="main.class" value="Main" />
+    <!-- Setting of JavaFX -->
+    <property name="javafx.tools.ant.jar" value="${env.JAVA_HOME}/lib/ant-javafx.jar" />
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="*.jar" />
+    </path>
+    <property name="classpath.resource" value="./resources" />
+    <pathconvert property="classpath.lib" refid="classpath" dirsep="/" pathsep=" ">
+        <map from="${base.dir}" to="." />
+    </pathconvert>
+
+    <!-- jar target -->
+    <target name="jar" depends="compile">
+        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
+                 uri="javafx:com.sun.javafx.tools.ant"
+                 classpath="${javafx.tools.ant.jar}" />
+        <fx:application id="app"
+                        mainClass="${main.class}" />
+
+        <fx:jar destfile="${dst.dir}/${jar.name}">
+            <!-- Define what to launch -->
+            <fx:application refid="app" />
+            <manifest>
+                <attribute name="JavaFX-Class-Path"
+                           value="${classpath.resource} ${classpath.lib}" />
+            </manifest>
+            <!-- Define what files to include -->
+            <fileset dir="${classes.dir}" />
+        </fx:jar>
+    </target>
+
+    <!-- compile target -->
+    <target name="compile">
+        <mkdir dir="${classes.dir}" />
+        <echo message="start compile..." />
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}"
+               debug="off"
+               classpathref="classpath">
+        </javac>
+        <echo message="complete." />
+    </target>
+
+    <!-- clean target -->
+    <target name="clean">
+        <delete dir="build" />
+    </target>
+
+    <!-- release target -->
+    <target name="release" depends="jar">
+        <mkdir dir="${dst.dir}/lib" />
+        <copy todir="${dst.dir}/lib">
+            <fileset dir="${lib.dir}" includes="**" />
+        </copy>
+        <mkdir dir="${dst.dir}/resources" />
+        <copy todir="${dst.dir}/resources">
+            <fileset dir="${resources.dir}" includes="**" />
+        </copy>
+    </target>
+
+</project>
