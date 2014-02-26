@@ -55,15 +55,15 @@ public class GoogleWeatherApi implements WeatherApi {
             weather = parse(http.getInputStream());
         } catch (Exception e) {
             throw new WeatherException(e);
+        } finally {
+            http.disconnect();
         }
 
-        http.disconnect();
         return weather;
     }
 
     Weather[] parse(InputStream in)
             throws ParserConfigurationException, SAXException, IOException {
-
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(in);
@@ -78,6 +78,10 @@ public class GoogleWeatherApi implements WeatherApi {
 
         for (int i = 0; i < result.length; i++) {
             Weather weather = new Weather();
+
+            // Weather condition
+            String condition = root.getElementsByTagName("condition").item(i).getAttributes().item(0).getNodeValue();
+            weather.setCondition(condition);
 
             // Date
             weather.setDate(calendar.getTime());
@@ -100,13 +104,9 @@ public class GoogleWeatherApi implements WeatherApi {
             weather.setHighTempF(highF);
             weather.setHighTempC(highC);
 
-            // Weather condition
-            String condition = root.getElementsByTagName("condition").item(i).getAttributes().item(0).getNodeValue();
-            weather.setCondition(condition);
+            result[i] = weather;
 
             calendar.add(Calendar.DAY_OF_MONTH, 1); // Next day
-
-            result[i] = weather;
         }
 
         return result;
@@ -119,7 +119,6 @@ public class GoogleWeatherApi implements WeatherApi {
      * @return Calendar
      */
     private Calendar toCalendar(String date) {
-
         Scanner scanner = new Scanner(date);
         scanner.findInLine("(\\d+)-(\\d+)-(\\d+)");
         MatchResult result = scanner.match();

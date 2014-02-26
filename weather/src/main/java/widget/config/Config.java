@@ -21,20 +21,20 @@ public class Config {
         LOCATION (""),
         ;
 
-        private String _defaultValue;
+        private String defaultValue;
 
         private Key(String defaultValue) {
-            _defaultValue = defaultValue;
+            this.defaultValue = defaultValue;
         }
 
         public String getDefaultValue() {
-            return _defaultValue;
+            return defaultValue;
         }
 
     }
 
     private static final String FILE_NAME = "config.xml";
-    private static final Properties __prop = new Properties();
+    private static final Properties prop = new Properties();
 
     static {
         try {
@@ -48,17 +48,17 @@ public class Config {
     }
 
     public static String get(Key key) {
-        return __prop.getProperty(key.name(), key.getDefaultValue());
+        return prop.getProperty(key.name(), key.getDefaultValue());
     }
 
     public static void set(Key key, String value) {
-        __prop.setProperty(key.name(), value);
+        prop.setProperty(key.name(), value);
     }
 
     public static void write() throws IOException {
         OutputStream out = new FileOutputStream(FILE_NAME);
         try {
-            __prop.storeToXML(out, null);
+            prop.storeToXML(out, null);
         } finally {
             out.close();
         }
@@ -67,7 +67,7 @@ public class Config {
     private static void loadProperties(String filename) throws IOException {
         InputStream in = new FileInputStream(FILE_NAME);
         try {
-            __prop.loadFromXML(in);
+            prop.loadFromXML(in);
         } finally {
             in.close();
         }

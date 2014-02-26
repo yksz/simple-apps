@@ -28,7 +28,7 @@ import javafx.stage.StageStyle;
 
 public class PreferencesDialog extends Dialog {
 
-    private final Preferences _prefs;
+    private final Preferences prefs;
 
     public PreferencesDialog(Stage owner, Preferences prefs) {
         super(owner, 240, 120);
@@ -37,7 +37,7 @@ public class PreferencesDialog extends Dialog {
             throw new NullPointerException("prefs");
         if ((owner instanceof WeatherWidget) == false)
             throw new IllegalArgumentException("owner must be instance of WeatherWidget");
-        _prefs  = prefs;
+        this.prefs  = prefs;
 
         this.initStyle(StageStyle.TRANSPARENT);
 
@@ -51,8 +51,8 @@ public class PreferencesDialog extends Dialog {
         );
         accordion.setExpandedPane(createLocationPane);
 
-        _scene.setFill(Color.rgb(255, 255, 255, 0));
-        _scene.setRoot(accordion);
+        scene.setFill(Color.rgb(255, 255, 255, 0));
+        scene.setRoot(accordion);
     }
 
     private TitledPane createProviderPane() {
@@ -65,12 +65,12 @@ public class PreferencesDialog extends Dialog {
         comboBox.getItems().addAll(
                 Provider.values()
         );
-        comboBox.setValue(_prefs.getProvider());
+        comboBox.setValue(prefs.getProvider());
         comboBox.valueProperty().addListener(new ChangeListener<Provider>() {
             @Override
             public void changed(ObservableValue<? extends Provider> observable,
                     Provider oldValue, Provider newValue) {
-                _prefs.setProvider(newValue);
+                prefs.setProvider(newValue);
             }
         });
 
@@ -80,7 +80,7 @@ public class PreferencesDialog extends Dialog {
                     @Override
                     public void handle(ActionEvent event) {
                         hide();
-                        ((WeatherWidget) _owner).updateForecast();
+                        ((WeatherWidget) owner).updateForecast();
                     }
                 })
                 .build();
@@ -111,7 +111,7 @@ public class PreferencesDialog extends Dialog {
 
     private TitledPane createLocationPane() {
         final Label locationLabel = LabelBuilder.create()
-                .text(" Location: " + _prefs.getLocation())
+                .text(" Location: " + prefs.getLocation())
                 .alignment(Pos.CENTER_LEFT)
                 .build();
 
@@ -133,10 +133,10 @@ public class PreferencesDialog extends Dialog {
                             String text = textField.getText();
                             textField.setText("");
                             locationLabel.setText(" Location: " + text);
-                            _prefs.setLocation(text);
+                            prefs.setLocation(text);
                         }
                         hide();
-                        ((WeatherWidget) _owner).updateForecast();
+                        ((WeatherWidget) owner).updateForecast();
                     }
                 })
                 .build()

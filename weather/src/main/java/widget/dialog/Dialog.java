@@ -12,25 +12,25 @@ public class Dialog extends Stage {
     private static final int TRANSLATE_X = 20;
     private static final int TRANSLATE_Y = 20;
 
-    protected final Scene _scene;
+    protected final Scene scene;
 
-    protected final Stage _owner;
-    protected final int _width, _height;
+    protected final Stage owner;
+    protected final int width, height;
 
     public Dialog(Stage owner, int width, int height) {
         if (owner == null)
             throw new NullPointerException("owner must not be null");
 
-        _owner = owner;
-        _width = width;
-        _height = height;
+        this.owner = owner;
+        this.width = width;
+        this.height = height;
 
         this.initModality(Modality.WINDOW_MODAL);
         this.initOwner(owner);
 
         Group root = new Group();
-        _scene = new Scene(root, _width, _height);
-        this.setScene(_scene);
+        scene = new Scene(root, width, height);
+        this.setScene(scene);
     }
 
     public void setLocationRelativeToScreen() {
@@ -39,20 +39,20 @@ public class Dialog extends Stage {
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
 
-        double dx = _owner.getX() + TRANSLATE_X;
-        double dy = _owner.getY() + TRANSLATE_Y;
+        double dx = owner.getX() + TRANSLATE_X;
+        double dy = owner.getY() + TRANSLATE_Y;
 
         // bottom
-        if (dy + _height > bounds.getMaxY())
-            dy = bounds.getMaxY() - _height;
+        if (dy + height > bounds.getMaxY())
+            dy = bounds.getMaxY() - height;
 
         // top
         if (dy < bounds.getMinY())
             dy = bounds.getMinY();
 
         // right
-        if (dx + _width > bounds.getMaxX())
-            dx = bounds.getMaxX() - _width;
+        if (dx + width > bounds.getMaxX())
+            dx = bounds.getMaxX() - width;
 
         // left
         if (dx < bounds.getMinX())

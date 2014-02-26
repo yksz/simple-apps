@@ -4,87 +4,87 @@ import java.util.Date;
 
 public final class Weather {
 
-    private String _condition;
-    private Date _date;
-    private String _day;
-    private int _lowTempF;
-    private int _highTempF;
-    private int _lowTempC;
-    private int _highTempC;
-
-    public Date getDate() {
-        return _date;
-    }
+    private String condition;
+    private Date date;
+    private String day;
+    private int lowTempF;
+    private int highTempF;
+    private int lowTempC;
+    private int highTempC;
 
     public String getCondition() {
-        return _condition;
+        return condition;
     }
 
     public void setCondition(String condition) {
-        _condition = condition;
+        this.condition = condition;
+    }
+
+    public Date getDate() {
+        return date;
     }
 
     public void setDate(Date date) {
-        _date = date;
+        this.date = date;
     }
 
     public String getDay() {
-        return _day;
+        return day;
     }
 
     public void setDay(String day) {
-        _day = day;
+        this.day = day;
     }
 
     public int getLowTempF() {
-        return _lowTempF;
+        return lowTempF;
     }
 
     public void setLowTempF(int lowTempF) {
-        _lowTempF = lowTempF;
+        this.lowTempF = lowTempF;
     }
 
     public int getHighTempF() {
-        return _highTempF;
+        return highTempF;
     }
 
     public void setHighTempF(int highTempF) {
-        _highTempF = highTempF;
+        this.highTempF = highTempF;
     }
 
     public int getLowTempC() {
-        return _lowTempC;
+        return lowTempC;
     }
 
     public void setLowTempC(int lowTempC) {
-        _lowTempC = lowTempC;
+        this.lowTempC = lowTempC;
     }
 
     public int getHighTempC() {
-        return _highTempC;
+        return highTempC;
     }
 
     public void setHighTempC(int highTempC) {
-        _highTempC = highTempC;
+        this.highTempC = highTempC;
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Weather [_condition=");
-        builder.append(_condition);
-        builder.append(", _date=");
-        builder.append(_date);
-        builder.append(", _day=");
-        builder.append(_day);
-        builder.append(", _lowTempF=");
-        builder.append(_lowTempF);
-        builder.append(", _highTempF=");
-        builder.append(_highTempF);
-        builder.append(", _lowTempC=");
-        builder.append(_lowTempC);
-        builder.append(", _highTempC=");
-        builder.append(_highTempC);
+        builder.append("Weather [condition=");
+        builder.append(condition);
+        builder.append(", date=");
+        builder.append(date);
+        builder.append(", day=");
+        builder.append(day);
+        builder.append(", lowTempF=");
+        builder.append(lowTempF);
+        builder.append(", highTempF=");
+        builder.append(highTempF);
+        builder.append(", lowTempC=");
+        builder.append(lowTempC);
+        builder.append(", highTempC=");
+        builder.append(highTempC);
         builder.append("]");
         return builder.toString();
     }

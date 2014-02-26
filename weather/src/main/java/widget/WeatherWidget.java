@@ -48,26 +48,26 @@ public class WeatherWidget extends Stage {
 
     private static final int FORECAST_DAYS = 3;
 
-    private final Preferences _prefs;
-    private final Properties  _iconProp;
+    private final Preferences prefs;
+    private final Properties  iconProp;
 
-    private ContextMenu _contextMenu;
-    private Dialog      _prefsDialog;
+    private ContextMenu contextMenu;
+    private Dialog      prefsDialog;
 
-    private Label       _date;
-    private Label[]     _day;
-    private Label[]     _temperature;
-    private ImageView[] _icon;
+    private Label       date;
+    private Label[]     day;
+    private Label[]     temperature;
+    private ImageView[] icon;
 
-    private MouseEvent _pressed;
+    private MouseEvent pressed;
 
     public WeatherWidget(Stage dummy) {
         super.initStyle(StageStyle.TRANSPARENT);
         super.initModality(Modality.WINDOW_MODAL);
         super.initOwner(dummy);
 
-        _prefs    = new Preferences();
-        _iconProp = new Properties();
+        prefs    = new Preferences();
+        iconProp = new Properties();
 
         try {
             loadConfig();
@@ -75,36 +75,36 @@ public class WeatherWidget extends Stage {
             e.printStackTrace();
         }
 
-        _prefsDialog = new PreferencesDialog(this, _prefs);
-        _day         = new Label[FORECAST_DAYS];
-        _temperature = new Label[FORECAST_DAYS];
-        _icon        = new ImageView[FORECAST_DAYS];
+        prefsDialog = new PreferencesDialog(this, prefs);
+        day         = new Label[FORECAST_DAYS];
+        temperature = new Label[FORECAST_DAYS];
+        icon        = new ImageView[FORECAST_DAYS];
 
         doLayout();
         updateForecast();
     }
 
     public void updateForecast() {
-        if (_prefs.getLocation() == null)
+        if (prefs.getLocation() == null)
             return;
 
         WeatherApiFactory factory = WeatherApiFactory.getInstance();
-        WeatherApi api = factory.getWeatherAPI(_prefs.getProvider());
+        WeatherApi api = factory.getWeatherAPI(prefs.getProvider());
         try {
-            Weather[] weather = api.getWeather(_prefs.getLocation());
-            _date.setText(String.format(Locale.ENGLISH, "%1$tb %1$te, %1$tY", weather[0].getDate()));
+            Weather[] weather = api.getWeather(prefs.getLocation());
+            date.setText(String.format(Locale.ENGLISH, "%1$tb %1$te, %1$tY", weather[0].getDate()));
 
             for (int i = 0; i < FORECAST_DAYS; i++) {
-                _day[i].setText(weather[i].getDay());
-                _temperature[i].setText(weather[i].getLowTempC() + "-" + weather[i].getHighTempC() + "℃");
+                day[i].setText(weather[i].getDay());
+                temperature[i].setText(weather[i].getLowTempC() + "-" + weather[i].getHighTempC() + "℃");
 
-                String iconPath = _iconProp.getProperty(weather[i].getCondition());
+                String iconPath = iconProp.getProperty(weather[i].getCondition());
                 if (iconPath == null)
-                    iconPath = _iconProp.getProperty("Unknown");
+                    iconPath = iconProp.getProperty("Unknown");
 
                 URL url = Loader.getResource(iconPath.trim());
                 if (url != null)
-                    _icon[i].setImage(new Image(url.toString()));
+                    icon[i].setImage(new Image(url.toString()));
             }
         } catch (Exception e) {
             Dialogs.showErrorDialog(this, null, "Could not get weather forecast", "Exception Encountered", e);
@@ -114,9 +114,9 @@ public class WeatherWidget extends Stage {
     private void loadConfig() throws IOException {
         // config.xml
         final String providerName = Config.get(Key.PROVIDER);
-        _prefs.setProvider(Provider.toProvider(providerName));
+        prefs.setProvider(Provider.toProvider(providerName));
         final String location = Config.get(Key.LOCATION);
-        _prefs.setLocation(location);
+        prefs.setLocation(location);
         final String x = Config.get(Key.POSITION_X);
         super.setX(Double.parseDouble(x));
         final String y = Config.get(Key.POSITION_Y);
@@ -126,7 +126,7 @@ public class WeatherWidget extends Stage {
         final String iconPropName = Config.get(Key.ICON_PROPERTIES);
         File file = Loader.getResourceAsFile(iconPropName);
         InputStream in = new FileInputStream(file);
-        _iconProp.loadFromXML(in);
+        iconProp.loadFromXML(in);
     }
 
     private void doLayout() {
@@ -148,61 +148,61 @@ public class WeatherWidget extends Stage {
             @Override
             public void handle(MouseEvent e) {
                 if (e.getButton() == MouseButton.PRIMARY)
-                    _contextMenu.hide();
+                    contextMenu.hide();
 
                 if (e.getButton() == MouseButton.SECONDARY)
-                    _contextMenu.show(vbox, e.getScreenX(), e.getScreenY());
+                    contextMenu.show(vbox, e.getScreenX(), e.getScreenY());
             }
          });
         vbox.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                _pressed = e;
+                pressed = e;
             }
          });
         vbox.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                setX(e.getScreenX() - _pressed.getSceneX());
-                setY(e.getScreenY() - _pressed.getSceneY());
+                setX(e.getScreenX() - pressed.getSceneX());
+                setY(e.getScreenY() - pressed.getSceneY());
             }
          });
 
         // Date
-        _date = LabelBuilder.create()
+        date = LabelBuilder.create()
                 .font(Font.font("System", 12))
                 .textFill(Color.rgb(255, 255, 255))
                 .text("?date?")
                 .build();
         vbox.getChildren().add(
-                _date
+                date
         );
 
         for (int i = 0; i < FORECAST_DAYS; i++) {
             // Day
-            _day[i] = LabelBuilder.create()
+            day[i] = LabelBuilder.create()
                     .font(Font.font("System", 12))
                     .textFill(Color.rgb(255, 255, 255))
                     .text("?day?")
                     .build();
 
             // Temperature
-            _temperature[i] = LabelBuilder.create()
+            temperature[i] = LabelBuilder.create()
                     .font(Font.font("System", 11))
                     .textFill(Color.rgb(255, 255, 255))
                     .text("?temperature?")
                     .build();
 
             // Weather icon
-            _icon[i] = ImageViewBuilder.create()
+            icon[i] = ImageViewBuilder.create()
                     .fitWidth(50)
                     .fitHeight(50)
                     .preserveRatio(true).build();
 
             vbox.getChildren().addAll(
-                    _day[i],
-                    _icon[i],
-                    _temperature[i]
+                    day[i],
+                    icon[i],
+                    temperature[i]
             );
 
             // Separator
@@ -218,17 +218,17 @@ public class WeatherWidget extends Stage {
     }
 
     private void setupContextMenu() {
-        _contextMenu = ContextMenuBuilder.create()
+        contextMenu = ContextMenuBuilder.create()
                 .build();
 
-        _contextMenu.getItems().addAll(
+        contextMenu.getItems().addAll(
                 MenuItemBuilder.create()
                 .text("Preferences...")
                 .onAction(new EventHandler<ActionEvent>(){
                     @Override
                     public void handle(ActionEvent event) {
-                        _prefsDialog.setLocationRelativeToScreen();
-                        _prefsDialog.show();
+                        prefsDialog.setLocationRelativeToScreen();
+                        prefsDialog.show();
                     }
                 })
                 .build()
@@ -251,17 +251,15 @@ public class WeatherWidget extends Stage {
                 .onAction(new EventHandler<ActionEvent>(){
                     @Override
                     public void handle(ActionEvent event) {
-                        Config.set(Key.PROVIDER, _prefs.getProvider().toString());
-                        Config.set(Key.LOCATION, _prefs.getLocation());
+                        Config.set(Key.PROVIDER, prefs.getProvider().toString());
+                        Config.set(Key.LOCATION, prefs.getLocation());
                         Config.set(Key.POSITION_X, Double.toString(getX()));
                         Config.set(Key.POSITION_Y, Double.toString(getY() ));
-
                         try {
                             Config.write();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                         System.exit(0);
                     }
                 })

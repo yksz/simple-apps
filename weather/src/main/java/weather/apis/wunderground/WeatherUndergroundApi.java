@@ -26,12 +26,12 @@ public class WeatherUndergroundApi implements WeatherApi {
     private static final String URL_SUFFIX = "/forecast/q/";
     private static final String EXTENSION = ".json";
 
-    private final String _key;
+    private final String key;
 
     public WeatherUndergroundApi(String key) {
         if (key == null)
             throw new NullPointerException("key must not be null");
-        _key = key;
+        this.key = key;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class WeatherUndergroundApi implements WeatherApi {
 
         URL url;
         try {
-            url = new URL(URL_PREFIX + _key + URL_SUFFIX + location + EXTENSION);
+            url = new URL(URL_PREFIX + key + URL_SUFFIX + location + EXTENSION);
         } catch (MalformedURLException e) {
             throw new WeatherException(e);
         }
@@ -62,29 +62,31 @@ public class WeatherUndergroundApi implements WeatherApi {
             weather = this.parse(http.getInputStream());
         } catch (Exception e) {
             throw new WeatherException(e);
+        } finally {
+            http.disconnect();
         }
 
-        http.disconnect();
         return weather;
     }
 
     Weather[] parse(InputStream in)
             throws JsonParseException, JsonMappingException, IOException {
-
         WeatherBean weatherBean = new WeatherBeanConverter().convert(in);
         ForecastdayBean[] forecastdayBean = weatherBean.getForecast().getSimpleforecast().getForecastday();
 
         Weather[] result = new Weather[forecastdayBean.length];
         for (int i = 0; i < result.length; i++) {
             Weather weather = new Weather();
-            DateBean date = forecastdayBean[i].getDate();
 
-            // Date
+            // Weather condition
+            String condition = forecastdayBean[i].getConditions();
+            weather.setCondition(condition);
+
+            // Date and Day
+            DateBean date = forecastdayBean[i].getDate();
             Calendar calendar = new GregorianCalendar(
                     date.getYear(), date.getMonth() - 1, date.getDay());
             weather.setDate(calendar.getTime());
-
-            // Day
             weather.setDay(date.getWeekday_short());
 
             // Lowest Temperature
@@ -97,12 +99,9 @@ public class WeatherUndergroundApi implements WeatherApi {
             weather.setHighTempF(high.getFahrenheit());
             weather.setHighTempC(high.getCelsius());
 
-            // Weather condition
-            String condition = forecastdayBean[i].getConditions();
-            weather.setCondition(condition);
-
             result[i] = weather;
         }
+
         return result;
     }
 

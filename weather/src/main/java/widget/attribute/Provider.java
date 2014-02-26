@@ -6,21 +6,21 @@ public enum Provider {
     WUNDERGROUND ("Weather Underground"),
     ;
 
-    private static final Provider[] __providers = Provider.values();
+    private static final Provider[] providers = Provider.values();
 
-    private String _name;
+    private String name;
 
     private Provider(String name) {
-        _name = name;
+        this.name = name;
     }
 
     @Override
     public String toString() {
-        return _name;
+        return name;
     }
 
     public static Provider toProvider(String name) {
-        for (Provider provider : __providers)
+        for (Provider provider : providers)
             if (provider.toString().equals(name))
                 return provider;
         return null;

@@ -15,10 +15,10 @@ class WeatherApiFactory {
 
     private static final String WUNDERGROUND_KEY  = "wunderground.key";
 
-    private static final WeatherApiFactory ＿＿instance =  new WeatherApiFactory();
-    private static String __apiKey = "";
+    private static final WeatherApiFactory instance =  new WeatherApiFactory();
+    private static String apiKey = "";
 
-    private WeatherApi _google, _wunderground;
+    private WeatherApi google, wunderground;
 
     static {
         try {
@@ -32,21 +32,21 @@ class WeatherApiFactory {
     }
 
     public static WeatherApiFactory getInstance() {
-        return ＿＿instance;
+        return instance;
     }
 
     public WeatherApi getWeatherAPI(Provider provider) {
         switch (provider) {
         case GOOGLE:
-            if (_google != null)
-                return _google;
+            if (google != null)
+                return google;
 
-            _google = new GoogleWeatherApi();
-            return _google;
+            google = new GoogleWeatherApi();
+            return google;
 
         case WUNDERGROUND:
-            _wunderground = new WeatherUndergroundApi(__apiKey);
-            return _wunderground;
+            wunderground = new WeatherUndergroundApi(apiKey);
+            return wunderground;
 
         default:
             throw new AssertionError("Unknown provider: " + provider);
@@ -62,7 +62,7 @@ class WeatherApiFactory {
             while ((line = in.readLine()) != null) {
                 if (line.charAt(0) == '#')
                     continue;
-                __apiKey = line.trim();
+                apiKey = line.trim();
                 break;
             }
         } finally {
