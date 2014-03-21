@@ -2,8 +2,8 @@ package gui.controller;
 
 import java.math.BigDecimal;
 
-import logic.calculator.Calculator;
-import logic.parser.SyntaxException;
+import calculator.Calculator;
+import calculator.parser.SyntaxException;
 import gui.model.Answer;
 import gui.model.Expression;
 import gui.model.Model;

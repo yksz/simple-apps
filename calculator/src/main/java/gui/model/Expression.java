@@ -2,7 +2,7 @@ package gui.model;
 
 public class Expression {
 
-    private StringBuilder builder;
+    private final StringBuilder builder;
 
     public Expression() {
         builder = new StringBuilder();
@@ -19,7 +19,8 @@ public class Expression {
     }
 
     public Expression deleteLastChar() {
-        builder.deleteCharAt(builder.length() - 1);
+        if (builder.length() > 0)
+            builder.deleteCharAt(builder.length() - 1);
         return this;
     }
 

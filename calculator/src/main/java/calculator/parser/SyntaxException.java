@@ -1,8 +1,8 @@
-package logic.parser;
+package calculator.parser;
 
 public class SyntaxException extends Exception {
 
-    private static final long serialVersionUID = -4138996108466457285L;
+    private static final long serialVersionUID = -3051907689244525982L;
 
     public SyntaxException() {
         super();

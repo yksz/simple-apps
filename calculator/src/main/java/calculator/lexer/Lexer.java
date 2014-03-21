@@ -1,4 +1,4 @@
-package logic.lexer;
+package calculator.lexer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,15 +6,11 @@ import java.util.StringTokenizer;
 
 public class Lexer {
 
-    private Lexer() {
-    }
-
-    public static List<Token> analyze(String statement) {
+    public List<Token> analyze(String statement) {
         if (statement == null)
             throw new NullPointerException("statement must not be null");
 
         List<Token> list = new ArrayList<Token>();
-
         StringTokenizer stringTokenizer = new StringTokenizer(statement);
         while (stringTokenizer.hasMoreTokens()) {
             String text = stringTokenizer.nextToken();

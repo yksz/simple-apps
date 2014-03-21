@@ -1,16 +1,16 @@
-package logic.calculator;
+package calculator;
 
 import java.math.BigDecimal;
 import java.util.Queue;
 import java.util.Stack;
 
-import logic.lexer.attribute.Operator;
-import logic.parser.SyntaxException;
-import logic.parser.SyntaxParser;
+import calculator.lexer.attribute.Operator;
+import calculator.parser.SyntaxException;
+import calculator.parser.SyntaxParser;
 
 public class Calculator {
 
-    public static final int SCALE = 16;
+    private static final int SCALE = 16;
 
     private Calculator() {
     }
@@ -20,9 +20,8 @@ public class Calculator {
             throw new NullPointerException("statement must not be null");
 
         Stack<BigDecimal> stack = new Stack<BigDecimal>();
-        Queue<Object> queue = SyntaxParser.parse(expression);
+        Queue<Object> queue = new SyntaxParser().parse(expression);
         BigDecimal calc = null;
-
         for (Object o : queue) {
             if (o instanceof BigDecimal) {
                 stack.push((BigDecimal) o);
@@ -31,36 +30,33 @@ public class Calculator {
                 if (stack.isEmpty())
                     throw new SyntaxException("There is no right-hand value");
                 BigDecimal right = stack.pop();
-
                 if (stack.isEmpty())
                     throw new SyntaxException("There is no left-hand value");
                 BigDecimal left = stack.pop();
-
                 calc = execute(left, right, (Operator) o);
                 stack.push(calc);
             }
         }
-
         return calc;
     }
 
     private static BigDecimal execute(BigDecimal left, BigDecimal right,
             Operator op) throws SyntaxException {
         switch (op) {
-        case ADD :
+        case ADD:
             return left.add(right);
-        case SUB :
+        case SUB:
             return left.subtract(right);
-        case MUL :
+        case MUL:
             return left.multiply(right);
-        case DIV :
+        case DIV:
             return left.divide(right, SCALE, BigDecimal.ROUND_HALF_UP);
-        case MOD :
+        case MOD:
             double mod = left.doubleValue() % right.doubleValue();
             return new BigDecimal(mod).setScale(left.scale(), BigDecimal.ROUND_HALF_UP);
-        case POW :
+        case POW:
             return new BigDecimal(Math.pow(left.doubleValue(), right.doubleValue()));
-        default :
+        default:
             throw new SyntaxException("Invalid operator: " + op);
         }
     }

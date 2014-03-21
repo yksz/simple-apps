@@ -1,7 +1,6 @@
-package logic.lexer.attribute;
+package calculator.lexer.attribute;
 
 public enum Operator {
-
     UNKNOWN ("unknown", 0, null),
 
     OPEN_PARENTHESIS  ("(", 0, null),
@@ -21,9 +20,7 @@ public enum Operator {
     private int precedence;
     private Associativity associativity;
 
-    private Operator(String symbol,
-            int precedence,
-            Associativity associativity) {
+    private Operator(String symbol, int precedence, Associativity associativity) {
         this.symbol = symbol;
         this.precedence = precedence;
         this.associativity = associativity;
@@ -45,7 +42,6 @@ public enum Operator {
         for (Operator operator : OPERATOR)
             if (operator.getName().equals(symbol))
                 return operator;
-
         return Operator.UNKNOWN;
     }
 

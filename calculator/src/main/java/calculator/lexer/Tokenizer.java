@@ -1,14 +1,14 @@
-package logic.lexer;
+package calculator.lexer;
 
 import java.util.NoSuchElementException;
 
-import logic.lexer.attribute.Type;
+import calculator.lexer.attribute.Type;
 
 public class Tokenizer {
 
     private int currentPosition;
-    private int maxPosition;
-    private String str;
+    private final int maxPosition;
+    private final String str;
 
     public Tokenizer(String str) {
         if (str == null)
