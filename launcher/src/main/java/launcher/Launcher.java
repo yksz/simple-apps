@@ -1,4 +1,4 @@
-package gui;
+package launcher;
 
 import java.awt.AWTException;
 import java.awt.Font;
@@ -22,8 +22,6 @@ import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
-
-import logic.Processor;
 
 import util.Loader;
 

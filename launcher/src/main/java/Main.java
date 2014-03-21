@@ -1,7 +1,7 @@
 import java.awt.AWTException;
 import java.io.IOException;
 
-import gui.Launcher;
+import launcher.Launcher;
 
 public class Main {
 
