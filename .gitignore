@@ -1,5 +1,11 @@
 .DS_Store
 
+# Java
+*.class
+
+# Eclipse
 bin/
-build/
+
+# Gradle
 .gradle
+build/
