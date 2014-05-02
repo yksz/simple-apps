@@ -1,2 +1,2 @@
-Java Simple Applications
+Simple Applications
 ================
