@@ -1,11 +1,9 @@
-import gui.model.Model;
 import gui.view.View;
 
 public class Main {
 
     public static void main(String args[]) {
-        Model model = new Model();
-        View view = new View(model);
+        View view = new View();
         view.setVisible(true);
     }
 

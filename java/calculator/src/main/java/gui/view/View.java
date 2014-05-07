@@ -33,15 +33,16 @@ public class View extends JFrame {
     private static final String LOOK_AND_FEEL = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
     private static final String TITLE = "Calculator";
 
-    private Expression expression;
-    private Answer answer;
+    private final Expression expression;
+    private final Answer answer;
 
-    private Controller controller;
+    private final Controller controller;
 
     private JTextField textField = new JTextField("");
     private JPanel operationPanel = new JPanel();
 
-    public View(Model model){
+    public View() {
+        Model model = new Model();
         this.expression = model.getExpression();
         this.answer = model.getAnswer();
         this.controller = new Controller(model, this);
