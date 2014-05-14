@@ -46,7 +46,6 @@ public class Launcher {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int button = e.getButton();
-
                 // left click
                 if (button == MouseEvent.BUTTON1) {
                     trayIcon.displayMessage(CAPTION, TEXT, MessageType.INFO);
@@ -89,12 +88,10 @@ public class Launcher {
     private List<MenuItem> createMenuItems(Properties prop) {
         List<MenuItem> itemList = new ArrayList<MenuItem>();
         Map<Object, Object> map = new TreeMap<Object, Object>(prop);
-
         for (Object obj : map.keySet()) {
             final String key = (String) obj;
             final String value = prop.getProperty((String) key);
             final String[] values = value.split(",");
-
             // Invalid format
             if (values.length < 2)
                 continue;
@@ -115,7 +112,6 @@ public class Launcher {
             });
             itemList.add(item);
         }
-
         return itemList;
     }
 

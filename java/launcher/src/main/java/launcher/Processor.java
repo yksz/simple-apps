@@ -13,7 +13,7 @@ public class Processor {
 
     public static Process execute(String command, File directory) throws IOException {
         if (command == null)
-            throw new NullPointerException("command must not be empty");
+            throw new NullPointerException("command must not be null");
 
         ProcessBuilder builder = new ProcessBuilder();
         builder.redirectErrorStream(true);
@@ -34,7 +34,6 @@ public class Processor {
                 try {
                     int len;
                     byte[] buf = new byte[1024];
-
                     while ((len = bin.read(buf)) != -1)
                         out.write(buf, 0, len);
                     out.flush();
