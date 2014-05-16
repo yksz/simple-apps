@@ -1,3 +1,8 @@
+import groovy.transform.*
+
+@InheritConstructors
+class SyntaxException extends Exception {}
+
 globalenv = [
     "exit": { System.exit(0) },
     "+": { x, y -> x + y },
@@ -29,7 +34,7 @@ def eval(x, env = globalenv) {
             def (_, vars, expr) = x
             return { ... args ->
                 def list = [vars, args].transpose()
-                def map = list.collectEntries{ it }
+                def map = list.collectEntries { it }
                 env.putAll(map)
                 eval(expr, env)
             }
@@ -48,12 +53,12 @@ def eval(x, env = globalenv) {
 
 def parse(tokens) {
     if (tokens.isEmpty())
-        throw new Exception("parse error: unexpected EOF")
+        throw new SyntaxException("parse error: unexpected EOF")
     def token = tokens.remove(0)
     if (token == "(") {
         return parseList(tokens)
     } else if (token == ")") {
-        throw new Exception("parse error: unexpected ')'")
+        throw new SyntaxException("parse error: unexpected ')'")
     } else {
         return parseAtom(token)
     }
@@ -64,7 +69,7 @@ def parseList(tokens) {
     while (tokens[0] != ")") {
         list.add(parse(tokens))
         if (tokens.isEmpty())
-            throw new Exception("parse error: ')' is not found")
+            throw new SyntaxException("parse error: ')' is not found")
     }
     tokens.remove(0) // pop off ')'
     return list
@@ -85,12 +90,12 @@ def tokenize(str) {
 def repl() {
     def reader = new BufferedReader(new InputStreamReader(System.in))
     while (true) {
-        print("lisp> ")
+        print "lisp> "
         def line = reader.readLine();
         try {
-            println(eval(parse(tokenize(line))))
+            println eval(parse(tokenize(line)))
         } catch (Throwable e) {
-            println(e)
+            println e
         }
     }
 }
