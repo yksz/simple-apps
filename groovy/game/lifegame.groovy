@@ -35,7 +35,7 @@ class Game {
                 _processInput()
                 _update()
                 screen.repaint()
-             }
+            }
         ] as TimerTask
         timer.schedule(gameloop, DELAY, PERIOD)
     }
