@@ -11,44 +11,46 @@ import gui.view.View;
 
 public class Controller {
 
-    private final Expression expression;
-    private final Answer answer;
-
+    private final Model model;
     private final View view;
 
     public Controller(Model model, View view) {
-        this.expression = model.getExpression();
-        this.answer = model.getAnswer();
+        this.model = model;
         this.view = view;
     }
 
     public void append(String str) {
-        expression.append(str);
+        Expression expr = model.getExpression();
+        expr.append(str);
         view.update();
     }
 
     public void calculate() {
+        Expression expr = model.getExpression();
+        Answer ans;
         try {
-            BigDecimal ans = Calculator.calculate(expression.getStr());
-            answer.setStr(ans.toString());
-            answer.deleteDotZero();
+            BigDecimal num = Calculator.calculate(expr.toString());
+            ans = new Answer(num);
         } catch (ArithmeticException e) {
             e.printStackTrace();
-            answer.setStr("Math ERROR");
+            ans = new Answer("Math ERROR");
         } catch (SyntaxException e) {
             e.printStackTrace();
-            answer.setStr("Syntax ERROR");
+            ans = new Answer("Syntax ERROR");
         }
+        model.setAnswer(ans);
         view.update();
     }
 
     public void clear() {
-        expression.clear();
+        Expression expr = model.getExpression();
+        expr.clear();
         view.update();
     }
 
     public void deleteLastChar() {
-        expression.deleteLastChar();
+        Expression expr = model.getExpression();
+        expr.deleteLastChar();
         view.update();
     }
 

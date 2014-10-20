@@ -1,26 +1,31 @@
 package gui.model;
 
+import java.math.BigDecimal;
+
 public class Answer {
 
-    private String str = "";
+    private String string;
 
-    public String getStr() {
-        return str;
+    public Answer(BigDecimal num) {
+        if (num == null)
+            this.string = "";
+        else
+            this.string = deleteDotZero(num.toString());
     }
 
-    public void setStr(String str) {
-        this.str = str;
+    public Answer(String string) {
+        this.string = string;
     }
 
-    public void clear() {
-        str = "";
+    public String toString() {
+        return string;
     }
 
-    public void deleteDotZero() {
-        if (str.indexOf('.') == -1)
-            return;
+    private String deleteDotZero(String decimal) {
+        if (decimal.indexOf('.') == -1)
+            return decimal;
 
-        StringBuilder sb = new StringBuilder(str);
+        StringBuilder sb = new StringBuilder(decimal);
         while (sb.length() > 1) {
             int lastIndex = sb.length() - 1;
             if (sb.charAt(lastIndex) == '0')
@@ -28,12 +33,10 @@ public class Answer {
             else
                 break;
         }
-
         int lastIndex = sb.length() - 1;
         if (sb.charAt(lastIndex) == '.')
             sb.deleteCharAt(lastIndex);
-
-        str = sb.toString();
+        return sb.toString();
     }
 
 }

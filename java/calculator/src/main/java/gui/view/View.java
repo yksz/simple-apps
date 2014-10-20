@@ -33,19 +33,15 @@ public class View extends JFrame {
     private static final String LOOK_AND_FEEL = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
     private static final String TITLE = "Calculator";
 
-    private final Expression expression;
-    private final Answer answer;
-
+    private final Model model;
     private final Controller controller;
 
     private JTextField textField = new JTextField("");
     private JPanel operationPanel = new JPanel();
 
     public View() {
-        Model model = new Model();
-        this.expression = model.getExpression();
-        this.answer = model.getAnswer();
-        this.controller = new Controller(model, this);
+        model = new Model();
+        controller = new Controller(model, this);
 
         setLookAndFeel(LOOK_AND_FEEL);
 
@@ -66,12 +62,15 @@ public class View extends JFrame {
     }
 
     public void update() {
-        if (answer.getStr().isEmpty()) {
-            textField.setText(expression.getStr());
+        Expression expr = model.getExpression();
+        Answer ans = model.getAnswer();
+
+        if (ans == null) {
+            textField.setText(expr.toString());
         } else {
-            textField.setText(answer.getStr());
-            expression.setStr(answer.getStr());
-            answer.clear();
+            textField.setText(ans.toString());
+            expr.setString(ans.toString());
+            model.setAnswer(null);
         }
         repaint();
     }

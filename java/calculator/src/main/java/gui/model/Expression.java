@@ -24,11 +24,11 @@ public class Expression {
         return this;
     }
 
-    public String getStr() {
+    public String toString() {
         return builder.toString();
     }
 
-    public Expression setStr(String str) {
+    public Expression setString(String str) {
         clear();
         append(str);
         return this;
