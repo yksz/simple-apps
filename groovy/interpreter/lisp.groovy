@@ -88,10 +88,10 @@ def tokenize(str) {
 }
 
 def repl() {
-    def reader = new BufferedReader(new InputStreamReader(System.in))
+    def reader = System.in.newReader()
     while (true) {
         print "lisp> "
-        def line = reader.readLine();
+        def line = reader.readLine()
         try {
             println eval(parse(tokenize(line)))
         } catch (Throwable e) {
