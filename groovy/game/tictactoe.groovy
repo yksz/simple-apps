@@ -64,7 +64,7 @@ def checkBackSlash() {
     return true
 }
 
-def checkDraw(wins) {
+def checkDraw(boolean wins) {
     if (wins)
         return false
     def draws = true
@@ -101,14 +101,12 @@ def eval(String line) {
     if (wins) {
         println "\n=== $turn WINS! ===\n"
         ready()
+    } else if (checkDraw(wins)) {
+        println "\n=== DRAW ===\n"
+        ready()
     } else {
-        if (checkDraw(wins)) {
-            println "\n=== DRAW ===\n"
-            ready()
-        } else {
-            turn = turn == 'o' ? 'x' : 'o'
-            println "Turn: $turn"
-        }
+        turn = turn == 'o' ? 'x' : 'o'
+        println "Turn: $turn"
     }
 }
 
