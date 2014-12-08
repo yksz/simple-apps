@@ -1,8 +1,7 @@
 package calculator.parser;
 
+@SuppressWarnings("serial")
 public class SyntaxException extends Exception {
-
-    private static final long serialVersionUID = -3051907689244525982L;
 
     public SyntaxException() {
         super();

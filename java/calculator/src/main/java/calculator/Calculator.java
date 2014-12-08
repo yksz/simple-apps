@@ -8,7 +8,7 @@ import calculator.lexer.attribute.Operator;
 import calculator.parser.SyntaxException;
 import calculator.parser.SyntaxParser;
 
-public class Calculator {
+public final class Calculator {
 
     private static final int SCALE = 16;
 
