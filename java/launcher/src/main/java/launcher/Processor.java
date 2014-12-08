@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class Processor {
-
-    private Processor() {
-    }
+class Processor {
 
     public static Process execute(String command, File directory) throws IOException {
         if (command == null)

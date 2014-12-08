@@ -1,11 +1,11 @@
-package util;
+package launcher;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URL;
 
-public class Loader {
+class Loader {
 
     public static URL getResource(String resource) {
         if (resource == null)

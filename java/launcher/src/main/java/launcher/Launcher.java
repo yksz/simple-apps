@@ -23,18 +23,16 @@ import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 
-import util.Loader;
-
 public class Launcher {
 
-    private static final String ICON_FILE_NAME   = "icon.png";
+    private static final String ICON_FILE_NAME = "icon.png";
     private static final String CONFIG_FILE_NAME = "config.xml";
 
     private static final String TOOL_TIP = "Java Launcher";
     private static final String CAPTION = "Usage";
     private static final String TEXT = "Please right click!";
 
-    private TrayIcon trayIcon;
+    private final TrayIcon trayIcon;
 
     public Launcher() throws IOException {
         URL url = Loader.getResource(ICON_FILE_NAME);
@@ -45,11 +43,8 @@ public class Launcher {
         trayIcon.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int button = e.getButton();
-                // left click
-                if (button == MouseEvent.BUTTON1) {
+                if (e.getButton() == MouseEvent.BUTTON1) // left click
                     trayIcon.displayMessage(CAPTION, TEXT, MessageType.INFO);
-                }
             }
         });
     }
@@ -64,8 +59,8 @@ public class Launcher {
         popup.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
         // Properties
-        final Properties prop = this.loadProperties(CONFIG_FILE_NAME);
-        List<MenuItem> itemList = this.createMenuItems(prop);
+        Properties prop = loadProperties(CONFIG_FILE_NAME);
+        List<MenuItem> itemList = createMenuItems(prop);
         for (MenuItem item : itemList)
             popup.add(item);
 
@@ -89,11 +84,10 @@ public class Launcher {
         List<MenuItem> itemList = new ArrayList<MenuItem>();
         Map<Object, Object> map = new TreeMap<Object, Object>(prop);
         for (Object obj : map.keySet()) {
-            final String key = (String) obj;
-            final String value = prop.getProperty((String) key);
-            final String[] values = value.split(",");
-            // Invalid format
-            if (values.length < 2)
+            String key = (String) obj;
+            String value = prop.getProperty((String) key);
+            String[] values = value.split(",");
+            if (values.length < 2) // invalid format
                 continue;
 
             MenuItem item = new MenuItem(values[0]);

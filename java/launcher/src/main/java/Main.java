@@ -6,10 +6,8 @@ import launcher.Launcher;
 public class Main {
 
     public static void main(String[] args) {
-        Launcher launcher;
         try {
-            launcher = new Launcher();
-            launcher.start();
+            new Launcher().start();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (AWTException e) {
