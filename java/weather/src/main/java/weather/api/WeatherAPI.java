@@ -1,6 +1,5 @@
 package weather.api;
 
-
 /**
  * This interface is the API to get the weather forecast.
  */
