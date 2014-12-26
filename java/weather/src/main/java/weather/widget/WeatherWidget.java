@@ -15,25 +15,22 @@ import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ContextMenuBuilder;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
-import javafx.scene.control.LabelBuilder;
-import javafx.scene.control.MenuItemBuilder;
-import javafx.scene.control.SeparatorBuilder;
-import javafx.scene.control.SeparatorMenuItemBuilder;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Separator;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.VBoxBuilder;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
 import weather.api.Forecast;
 import weather.api.WeatherAPI;
 import weather.widget.attribute.Provider;
@@ -93,16 +90,13 @@ public class WeatherWidget extends Stage {
         try {
             Forecast[] forecast = api.getForecast(prefs.getLocation());
             date.setText(String.format(Locale.ENGLISH, "%1$tb %1$te, %1$tY", forecast[0].getDate()));
-
             for (int i = 0; i < FORECAST_DAYS; i++) {
                 day[i].setText(forecast[i].getDay());
                 temperature[i].setText(forecast[i].getLowTemperature().getCelsius()
                         + "-" + forecast[i].getHighTemperature().getCelsius() + "℃");
-
                 String iconPath = iconProp.getProperty(forecast[i].getCondition());
                 if (iconPath == null)
                     iconPath = iconProp.getProperty("Unknown");
-
                 URL url = Loader.getResource(iconPath.trim());
                 if (url != null)
                     icon[i].setImage(new Image(url.toString()));
@@ -140,10 +134,8 @@ public class WeatherWidget extends Stage {
     }
 
     private void layoutForcast(Scene scene) {
-        VBox vbox = VBoxBuilder.create()
-                .alignment(Pos.CENTER)
-                .spacing(5)
-                .build();
+        VBox vbox = new VBox(5);
+        vbox.setAlignment(Pos.CENTER);
         vbox.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
@@ -168,92 +160,74 @@ public class WeatherWidget extends Stage {
         });
 
         // Date
-        date = LabelBuilder.create()
-                .font(Font.font("System", 12))
-                .textFill(Color.rgb(255, 255, 255))
-                .text("?date?")
-                .build();
+        date = new Label("?date?");
+        date.setFont(Font.font("System", 12));
+        date.setTextFill(Color.rgb(255, 255, 255));
         vbox.getChildren().add(date);
 
         for (int i = 0; i < FORECAST_DAYS; i++) {
             // Day
-            day[i] = LabelBuilder.create()
-                    .font(Font.font("System", 12))
-                    .textFill(Color.rgb(255, 255, 255))
-                    .text("?day?")
-                    .build();
+            day[i] = new Label("?day?");
+            day[i].setFont(Font.font("System", 12));
+            day[i].setTextFill(Color.rgb(255, 255, 255));
             // Temperature
-            temperature[i] = LabelBuilder.create()
-                    .font(Font.font("System", 11))
-                    .textFill(Color.rgb(255, 255, 255))
-                    .text("?temperature?")
-                    .build();
+            temperature[i] = new Label("?temperature?");
+            temperature[i].setFont(Font.font("System", 11));
+            temperature[i].setTextFill(Color.rgb(255, 255, 255));
             // Weather icon
-            icon[i] = ImageViewBuilder.create()
-                    .fitWidth(50)
-                    .fitHeight(50)
-                    .preserveRatio(true).build();
+            icon[i] = new ImageView();
+            icon[i].setFitWidth(50);
+            icon[i].setFitHeight(50);
+            icon[i].setPreserveRatio(true);
             vbox.getChildren().addAll(day[i], icon[i], temperature[i]);
-
             // Separator
-            if (i != FORECAST_DAYS - 1)
-                vbox.getChildren().add(
-                        SeparatorBuilder.create()
-                        .valignment(VPos.CENTER)
-                        .build()
-                );
+            if (i != FORECAST_DAYS - 1) {
+                Separator separator = new Separator();
+                separator.setValignment(VPos.CENTER);
+                vbox.getChildren().add(separator);
+            }
         }
 
         scene.setRoot(vbox);
     }
 
     private void setupContextMenu() {
-        contextMenu = ContextMenuBuilder.create()
-                .build();
-        contextMenu.getItems().addAll(
-                MenuItemBuilder.create()
-                .text("Preferences...")
-                .onAction(new EventHandler<ActionEvent>(){
-                    @Override
-                    public void handle(ActionEvent event) {
-                        prefsDialog.setLocationRelativeToScreen();
-                        prefsDialog.show();
-                    }
-                })
-                .build()
-                ,
-                MenuItemBuilder.create()
-                .text("Update the forecast")
-                .onAction(new EventHandler<ActionEvent>(){
-                    @Override
-                    public void handle(ActionEvent event) {
-                        updateForecast();
-                    }
-                })
-                .build()
-                ,
-                SeparatorMenuItemBuilder.create()
-                .build()
-                ,
-                MenuItemBuilder.create()
-                .text("Exit")
-                .onAction(new EventHandler<ActionEvent>(){
-                    @Override
-                    public void handle(ActionEvent event) {
-                        Config.set(Key.PROVIDER, prefs.getProvider().toString());
-                        Config.set(Key.LOCATION, prefs.getLocation());
-                        Config.set(Key.POSITION_X, Double.toString(getX()));
-                        Config.set(Key.POSITION_Y, Double.toString(getY() ));
-                        try {
-                            Config.write();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        System.exit(0);
-                    }
-                })
-                .build()
-        );
+        MenuItem prefMenuItem = new MenuItem("Preferences...");
+        prefMenuItem.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                prefsDialog.setLocationRelativeToScreen();
+                prefsDialog.show();
+            }
+        });
+
+        MenuItem updateMenuItem = new MenuItem("Update the forecast");
+        updateMenuItem.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                updateForecast();
+            }
+        });
+
+        MenuItem exitMenuItem = new MenuItem("Exit");
+        exitMenuItem.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                Config.set(Key.PROVIDER, prefs.getProvider().toString());
+                Config.set(Key.LOCATION, prefs.getLocation());
+                Config.set(Key.POSITION_X, Double.toString(getX()));
+                Config.set(Key.POSITION_Y, Double.toString(getY() ));
+                try {
+                    Config.write();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.exit(0);
+            }
+        });
+
+        contextMenu = new ContextMenu();
+        contextMenu.getItems().addAll(prefMenuItem, updateMenuItem, new SeparatorMenuItem(), exitMenuItem);
     }
 
 }

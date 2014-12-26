@@ -14,7 +14,6 @@ import weather.widget.util.Loader;
 class WeatherAPIFactory {
 
     private static final String WUNDERGROUND_KEY  = "wunderground.key";
-
     private static final WeatherAPIFactory instance =  new WeatherAPIFactory();
     private static String apiKey = "";
 
@@ -40,7 +39,6 @@ class WeatherAPIFactory {
         case GOOGLE:
             if (google != null)
                 return google;
-
             google = new GoogleWeatherAPI();
             return google;
 
@@ -56,7 +54,6 @@ class WeatherAPIFactory {
     private static void loadKey() throws IOException {
         File file = Loader.getResourceAsFile(WUNDERGROUND_KEY);
         BufferedReader in = new BufferedReader(new FileReader(file));
-
         String line;
         try {
             while ((line = in.readLine()) != null) {

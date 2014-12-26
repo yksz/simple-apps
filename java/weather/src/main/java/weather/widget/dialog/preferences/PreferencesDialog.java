@@ -7,18 +7,12 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBuilder;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.LabelBuilder;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFieldBuilder;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.TitledPaneBuilder;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.HBoxBuilder;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.VBoxBuilder;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -41,14 +35,11 @@ public class PreferencesDialog extends Dialog {
 
         this.initStyle(StageStyle.TRANSPARENT);
 
-        TitledPane providerPane = this.createProviderPane();
-        TitledPane createLocationPane = this.createLocationPane();
+        TitledPane providerPane = createProviderPane();
+        TitledPane createLocationPane = createLocationPane();
 
         Accordion accordion = new Accordion();
-        accordion.getPanes().addAll(
-                providerPane,
-                createLocationPane
-        );
+        accordion.getPanes().addAll(providerPane, createLocationPane);
         accordion.setExpandedPane(createLocationPane);
 
         scene.setFill(Color.rgb(255, 255, 255, 0));
@@ -67,95 +58,69 @@ public class PreferencesDialog extends Dialog {
             }
         });
 
-        Button button = ButtonBuilder.create()
-                .text("OK")
-                .onAction(new EventHandler<ActionEvent>(){
-                    @Override
-                    public void handle(ActionEvent event) {
-                        hide();
-                        ((WeatherWidget) owner).updateForecast();
-                    }
-                })
-                .build();
+        Button button = new Button("OK");
+        button.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                hide();
+                ((WeatherWidget) owner).updateForecast();
+            }
+        });
 
-        HBox hbox = HBoxBuilder.create()
-                .alignment(Pos.CENTER)
-                .spacing(10)
-                .build();
+        HBox hbox = new HBox(10);
+        hbox.setAlignment(Pos.CENTER);
         hbox.getChildren().addAll(comboBox, button);
 
-        Label providedByLabel = LabelBuilder.create()
-                .text(" Provided by: ")
-                .alignment(Pos.CENTER_LEFT)
-                .build();
+        Label providedByLabel = new Label(" Provided by: ");
+        providedByLabel.setAlignment(Pos.CENTER_LEFT);
 
-        VBox vbox = VBoxBuilder.create()
-                .alignment(Pos.CENTER_LEFT)
-                .spacing(5)
-                .build();
+        VBox vbox = new VBox(5);
+        vbox.setAlignment(Pos.CENTER_LEFT);
         vbox.getChildren().addAll(providedByLabel, hbox);
 
-        return TitledPaneBuilder.create()
-                .text("Provider")
-                .content(vbox)
-                .build();
+        return new TitledPane("Provider", vbox);
     }
 
     private TitledPane createLocationPane() {
-        Label locationLabel = LabelBuilder.create()
-                .text(" Location: " + prefs.getLocation())
-                .alignment(Pos.CENTER_LEFT)
-                .build();
+        Label locationLabel = new Label(" Location: " + prefs.getLocation());
+        locationLabel.setAlignment(Pos.CENTER_LEFT);
 
-        TextField textField = TextFieldBuilder.create()
-                .promptText("Enter the location where you live")
-                .build();
+        TextField textField = new TextField();
+        textField.setPromptText("Enter the location where you live");
 
-        HBox hbox = HBoxBuilder.create()
-                .alignment(Pos.CENTER)
-                .spacing(10)
-                .build();
-        hbox.getChildren().addAll(
-                ButtonBuilder.create()
-                .text("OK")
-                .onAction(new EventHandler<ActionEvent>(){
-                    @Override
-                    public void handle(ActionEvent event) {
-                        if (textField.getText().length() != 0) {
-                            String text = textField.getText();
-                            textField.setText("");
-                            locationLabel.setText(" Location: " + text);
-                            prefs.setLocation(text);
-                        }
-                        hide();
-                        ((WeatherWidget) owner).updateForecast();
-                    }
-                })
-                .build()
-                ,
-                ButtonBuilder.create()
-                .text("Cancel")
-                .onAction(new EventHandler<ActionEvent>(){
-                    @Override
-                    public void handle(ActionEvent event) {
-                        textField.setText("");
-                        hide();
-                    }
-                })
-                .build()
+        Button okButton = new Button("OK");
+        okButton.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                if (textField.getText().length() != 0) {
+                    String text = textField.getText();
+                    textField.setText("");
+                    locationLabel.setText(" Location: " + text);
+                    prefs.setLocation(text);
+                }
+                hide();
+                ((WeatherWidget) owner).updateForecast();
+            }
+        });
 
-        );
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                textField.setText("");
+                hide();
+            }
+        });
 
-        VBox vbox = VBoxBuilder.create()
-                .alignment(Pos.CENTER_LEFT)
-                .spacing(5)
-                .build();
+        HBox hbox = new HBox(10);
+        hbox.setAlignment(Pos.CENTER);
+        hbox.getChildren().addAll(okButton, cancelButton);
+
+        VBox vbox = new VBox(5);
+        vbox.setAlignment(Pos.CENTER_LEFT);
         vbox.getChildren().addAll(locationLabel, textField, hbox);
 
-        return TitledPaneBuilder.create()
-                .text("Location")
-                .content(vbox)
-                .build();
+        return new TitledPane("Location", vbox);
     }
 
 }

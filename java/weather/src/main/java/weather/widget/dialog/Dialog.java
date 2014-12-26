@@ -13,7 +13,6 @@ public class Dialog extends Stage {
     private static final int TRANSLATE_Y = 20;
 
     protected final Scene scene;
-
     protected final Stage owner;
     protected final int width, height;
 

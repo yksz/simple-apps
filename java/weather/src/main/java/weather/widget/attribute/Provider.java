@@ -24,5 +24,4 @@ public enum Provider {
                 return provider;
         return null;
     }
-
 }

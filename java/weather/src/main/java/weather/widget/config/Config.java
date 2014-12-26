@@ -29,7 +29,6 @@ public class Config {
         public String getDefaultValue() {
             return defaultValue;
         }
-
     }
 
     private static final String FILE_NAME = "config.xml";
