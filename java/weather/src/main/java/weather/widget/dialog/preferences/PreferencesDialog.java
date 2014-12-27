@@ -36,11 +36,11 @@ public class PreferencesDialog extends Dialog {
         this.initStyle(StageStyle.TRANSPARENT);
 
         TitledPane providerPane = createProviderPane();
-        TitledPane createLocationPane = createLocationPane();
+        TitledPane locationPane = createLocationPane();
 
         Accordion accordion = new Accordion();
-        accordion.getPanes().addAll(providerPane, createLocationPane);
-        accordion.setExpandedPane(createLocationPane);
+        accordion.getPanes().addAll(providerPane, locationPane);
+        accordion.setExpandedPane(locationPane);
 
         scene.setFill(Color.rgb(255, 255, 255, 0));
         scene.setRoot(accordion);

@@ -1,5 +1,7 @@
 package weather.widget;
 
+import impl.org.controlsfx.i18n.Localization;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +17,6 @@ import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
@@ -31,6 +32,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import org.controlsfx.dialog.Dialogs;
+
 import weather.api.Forecast;
 import weather.api.WeatherAPI;
 import weather.widget.attribute.Provider;
@@ -44,6 +47,10 @@ import weather.widget.util.Loader;
 public class WeatherWidget extends Stage {
 
     private static final int FORECAST_DAYS = 3;
+
+    static {
+        Localization.setLocale(Locale.ENGLISH);
+    }
 
     private final Preferences prefs;
     private final Properties iconProp;
@@ -81,31 +88,6 @@ public class WeatherWidget extends Stage {
         updateForecast();
     }
 
-    public void updateForecast() {
-        if (prefs.getLocation() == null)
-            return;
-
-        WeatherAPIFactory factory = WeatherAPIFactory.getInstance();
-        WeatherAPI api = factory.getWeatherAPI(prefs.getProvider());
-        try {
-            Forecast[] forecast = api.getForecast(prefs.getLocation());
-            date.setText(String.format(Locale.ENGLISH, "%1$tb %1$te, %1$tY", forecast[0].getDate()));
-            for (int i = 0; i < FORECAST_DAYS; i++) {
-                day[i].setText(forecast[i].getDay());
-                temperature[i].setText(forecast[i].getLowTemperature().getCelsius()
-                        + "-" + forecast[i].getHighTemperature().getCelsius() + "℃");
-                String iconPath = iconProp.getProperty(forecast[i].getCondition());
-                if (iconPath == null)
-                    iconPath = iconProp.getProperty("Unknown");
-                URL url = Loader.getResource(iconPath.trim());
-                if (url != null)
-                    icon[i].setImage(new Image(url.toString()));
-            }
-        } catch (Exception e) {
-            Dialogs.showErrorDialog(this, null, "Could not get weather forecast", "Exception Encountered", e);
-        }
-    }
-
     private void loadConfig() throws IOException {
         // config.xml
         String providerName = Config.get(Key.PROVIDER);
@@ -122,6 +104,38 @@ public class WeatherWidget extends Stage {
         File file = Loader.getResourceAsFile(iconPropName);
         InputStream in = new FileInputStream(file);
         iconProp.loadFromXML(in);
+    }
+
+    public void updateForecast() {
+        if (prefs.getLocation() == null)
+            return;
+
+        WeatherAPIFactory factory = WeatherAPIFactory.getInstance();
+        WeatherAPI api = factory.getWeatherAPI(prefs.getProvider());
+        try {
+            Forecast[] forecast = api.getForecast(prefs.getLocation());
+            date.setText(String.format(Locale.ENGLISH, "%1$tb %1$te, %1$tY", forecast[0].getDate()));
+            for (int i = 0; i < FORECAST_DAYS; i++) {
+                day[i].setText(forecast[i].getDay());
+                temperature[i].setText(forecast[i].getLowTemperature().getCelsius()
+                        + "-" + forecast[i].getHighTemperature().getCelsius() + "℃");
+                String iconPath = iconProp.getProperty(forecast[i].getCondition());
+                if (iconPath == null)
+                    iconPath = iconProp.getProperty("Unknown");
+                if (iconPath == null)
+                    continue;
+                URL url = Loader.getResource(iconPath.trim());
+                if (url != null)
+                    icon[i].setImage(new Image(url.toString()));
+            }
+        } catch (Exception e) {
+            Dialogs.create()
+                .owner(this)
+                .title("Exception Dialog")
+                .masthead("Exception occured!")
+                .message("Could not get weather forecast")
+                .showException(e);
+        }
     }
 
     private void doLayout() {
@@ -162,18 +176,18 @@ public class WeatherWidget extends Stage {
         // Date
         date = new Label("?date?");
         date.setFont(Font.font("System", 12));
-        date.setTextFill(Color.rgb(255, 255, 255));
+        date.setTextFill(Color.WHITE);
         vbox.getChildren().add(date);
 
         for (int i = 0; i < FORECAST_DAYS; i++) {
             // Day
             day[i] = new Label("?day?");
             day[i].setFont(Font.font("System", 12));
-            day[i].setTextFill(Color.rgb(255, 255, 255));
+            day[i].setTextFill(Color.WHITE);
             // Temperature
             temperature[i] = new Label("?temperature?");
             temperature[i].setFont(Font.font("System", 11));
-            temperature[i].setTextFill(Color.rgb(255, 255, 255));
+            temperature[i].setTextFill(Color.WHITE);
             // Weather icon
             icon[i] = new ImageView();
             icon[i].setFitWidth(50);

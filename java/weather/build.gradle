@@ -1,0 +1,39 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.codehaus.jackson:jackson-core-asl:1.9.13'
+    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
+    compile 'org.controlsfx:controlsfx:8.0.6'
+
+    testCompile 'junit:junit:4.+'
+}
+
+jar {
+    def libPath = configurations.compile.collect { 'lib/' + it.name }.join(' ')
+    manifest {
+        attributes 'Main-Class': 'Main'
+        attributes 'Class-Path': '. ' + libPath
+    }
+    sourceSets.main.resources.exclude '*'
+}
+
+task release(dependsOn: assemble) << {
+    copy { // oss
+        from configurations.compile
+        into "$distsDir/lib"
+    }
+    copy { // resource
+        from sourceSets.main.resources.srcDirs
+        into distsDir
+    }
+    copy { // jar
+        from libsDir
+        into distsDir
+    }
+}
