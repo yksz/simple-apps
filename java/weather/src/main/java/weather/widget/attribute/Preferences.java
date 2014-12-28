@@ -1,6 +1,4 @@
-package weather.widget.dialog.preferences;
-
-import weather.widget.attribute.Provider;
+package weather.widget.attribute;
 
 public class Preferences {
 

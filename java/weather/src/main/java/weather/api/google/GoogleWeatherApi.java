@@ -12,24 +12,22 @@ import java.util.regex.MatchResult;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import weather.api.Forecast;
 import weather.api.Temperature;
-import weather.api.WeatherAPI;
-import weather.api.WeatherAPIException;
+import weather.api.WeatherApi;
+import weather.api.WeatherApiException;
 
-public class GoogleWeatherAPI implements WeatherAPI {
+public class GoogleWeatherApi implements WeatherApi {
 
     private static final String URL = "http://www.google.com/ig/api?weather=";
     private static final String LANGUAGE = "&hl=en";
 
     @Override
-    public Forecast[] getForecast(String location) throws WeatherAPIException {
+    public Forecast[] getForecast(String location) throws WeatherApiException {
         if (location == null)
             throw new NullPointerException("location must not be null");
         if (location.isEmpty())
@@ -39,7 +37,7 @@ public class GoogleWeatherAPI implements WeatherAPI {
         try {
             url = new URL(URL + location + LANGUAGE);
         } catch (MalformedURLException e) {
-            throw new WeatherAPIException(e);
+            throw new WeatherApiException(e);
         }
 
         HttpURLConnection http;
@@ -48,20 +46,19 @@ public class GoogleWeatherAPI implements WeatherAPI {
             http.setRequestMethod("GET");
             http.connect();
         } catch (IOException e) {
-            throw new WeatherAPIException(e);
+            throw new WeatherApiException(e);
         }
 
         try {
             return parse(http.getInputStream());
         } catch (Exception e) {
-            throw new WeatherAPIException(e);
+            throw new WeatherApiException(e);
         } finally {
             http.disconnect();
         }
     }
 
-    Forecast[] parse(InputStream in)
-            throws ParserConfigurationException, SAXException, IOException {
+    Forecast[] parse(InputStream in) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(in);

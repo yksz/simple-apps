@@ -8,20 +8,17 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-
 import weather.api.Forecast;
 import weather.api.Temperature;
-import weather.api.WeatherAPI;
-import weather.api.WeatherAPIException;
+import weather.api.WeatherApi;
+import weather.api.WeatherApiException;
 import weather.api.wunderground.bean.ForecastdayBean;
 import weather.api.wunderground.bean.ForecastdayBean.DateBean;
 import weather.api.wunderground.bean.ForecastdayBean.TemperatureBean;
 import weather.api.wunderground.bean.WeatherBean;
 import weather.api.wunderground.bean.WeatherBeanConverter;
 
-public class WeatherUndergroundAPI implements WeatherAPI {
+public class WeatherUndergroundApi implements WeatherApi {
 
     private static final String URL_PREFIX = "http://api.wunderground.com/api/";
     private static final String URL_SUFFIX = "/forecast/q/";
@@ -29,14 +26,14 @@ public class WeatherUndergroundAPI implements WeatherAPI {
 
     private final String key;
 
-    public WeatherUndergroundAPI(String key) {
+    public WeatherUndergroundApi(String key) {
         if (key == null)
             throw new NullPointerException("key must not be null");
         this.key = key;
     }
 
     @Override
-    public Forecast[] getForecast(String location) throws WeatherAPIException {
+    public Forecast[] getForecast(String location) throws WeatherApiException {
         if (location == null)
             throw new NullPointerException("location must not be null");
         if (location.isEmpty())
@@ -46,7 +43,7 @@ public class WeatherUndergroundAPI implements WeatherAPI {
         try {
             url = new URL(URL_PREFIX + key + URL_SUFFIX + location + EXTENSION);
         } catch (MalformedURLException e) {
-            throw new WeatherAPIException(e);
+            throw new WeatherApiException(e);
         }
 
         HttpURLConnection http;
@@ -55,20 +52,19 @@ public class WeatherUndergroundAPI implements WeatherAPI {
             http.setRequestMethod("GET");
             http.connect();
         } catch (IOException e) {
-            throw new WeatherAPIException(e);
+            throw new WeatherApiException(e);
         }
 
         try {
             return parse(http.getInputStream());
         } catch (Exception e) {
-            throw new WeatherAPIException(e);
+            throw new WeatherApiException(e);
         } finally {
             http.disconnect();
         }
     }
 
-    Forecast[] parse(InputStream in)
-            throws JsonParseException, JsonMappingException, IOException {
+    Forecast[] parse(InputStream in) throws Exception {
         WeatherBean weatherBean = new WeatherBeanConverter().convert(in);
         ForecastdayBean[] forecastdayBean = weatherBean.getForecast().getSimpleforecast().getForecastday();
 

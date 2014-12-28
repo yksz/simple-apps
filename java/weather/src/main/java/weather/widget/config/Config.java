@@ -36,7 +36,7 @@ public class Config {
 
     static {
         try {
-            loadProperties(FILE_NAME);
+            loadProperties();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,7 +62,7 @@ public class Config {
         }
     }
 
-    private static void loadProperties(String filename) throws IOException {
+    private static void loadProperties() throws IOException {
         InputStream in = new FileInputStream(FILE_NAME);
         try {
             prop.loadFromXML(in);

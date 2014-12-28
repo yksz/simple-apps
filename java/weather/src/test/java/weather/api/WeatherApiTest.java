@@ -4,14 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import weather.api.google.MockGoogleWeatherAPI;
-import weather.api.wunderground.MockWeatherUndergroundAPI;
+import weather.api.google.MockGoogleWeatherApi;
+import weather.api.wunderground.MockWeatherUndergroundApi;
 
-public class WeatherAPITest {
+public class WeatherApiTest {
 
     @Test
     public void testGetForecastFromGoogle() throws Exception {
-        WeatherAPI api = new MockGoogleWeatherAPI();
+        WeatherApi api = new MockGoogleWeatherApi();
         Forecast[] fs = api.getForecast("location");
         assertEquals("Partly Cloudy", fs[0].getCondition());
         assertEquals("Sat", fs[0].getDay());
@@ -23,7 +23,7 @@ public class WeatherAPITest {
 
     @Test
     public void testGetForecastFromWeatherUnderground() throws Exception {
-        WeatherAPI api = new MockWeatherUndergroundAPI("key");
+        WeatherApi api = new MockWeatherUndergroundApi("key");
         Forecast[] fs = api.getForecast("location");
         assertEquals("Rain", fs[0].getCondition());
         assertEquals("Fri", fs[0].getDay());

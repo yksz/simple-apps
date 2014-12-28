@@ -1,7 +1,5 @@
 package weather.widget;
 
-import impl.org.controlsfx.i18n.Localization;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,11 +8,9 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.Properties;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -25,67 +21,58 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import org.controlsfx.dialog.Dialogs;
 
 import weather.api.Forecast;
-import weather.api.WeatherAPI;
+import weather.api.WeatherApi;
+import weather.widget.attribute.Preferences;
 import weather.widget.attribute.Provider;
 import weather.widget.config.Config;
 import weather.widget.config.Config.Key;
 import weather.widget.dialog.Dialog;
-import weather.widget.dialog.preferences.Preferences;
-import weather.widget.dialog.preferences.PreferencesDialog;
+import weather.widget.dialog.PreferencesDialog;
 import weather.widget.util.Loader;
 
-public class WeatherWidget extends Stage {
+public class WeatherWidget extends Application {
 
     private static final int FORECAST_DAYS = 3;
 
-    static {
-        Localization.setLocale(Locale.ENGLISH);
-    }
+    private final Preferences prefs = new Preferences();
+    private final Properties iconProp = new Properties();
 
-    private final Preferences prefs;
-    private final Properties iconProp;
-
-    private ContextMenu contextMenu;
+    private Stage stage;
+    private ContextMenu contextMenu = new ContextMenu();
     private Dialog prefsDialog;
 
-    private Label date;
-    private Label[] day;
-    private Label[] temperature;
-    private ImageView[] icon;
+    private Label date = new Label();
+    private Label[] day = new Label[FORECAST_DAYS];
+    private Label[] temperature = new Label[FORECAST_DAYS];
+    private ImageView[] icon = new ImageView[FORECAST_DAYS];
 
     private MouseEvent pressed;
 
-    public WeatherWidget(Stage dummy) {
-        super.initStyle(StageStyle.TRANSPARENT);
-        super.initModality(Modality.WINDOW_MODAL);
-        super.initOwner(dummy);
-
-        prefs = new Preferences();
-        iconProp = new Properties();
+    public void start(Stage stage) throws Exception {
+        this.stage = stage;
+        stage.initStyle(StageStyle.TRANSPARENT);
 
         try {
             loadConfig();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        prefsDialog = new PreferencesDialog(this, prefs);
-        day = new Label[FORECAST_DAYS];
-        temperature = new Label[FORECAST_DAYS];
-        icon = new ImageView[FORECAST_DAYS];
+        prefsDialog = new PreferencesDialog(stage, this, prefs);
 
         doLayout();
         updateForecast();
+        stage.show();
+        stage.toBack();
     }
 
     private void loadConfig() throws IOException {
@@ -95,9 +82,9 @@ public class WeatherWidget extends Stage {
         String location = Config.get(Key.LOCATION);
         prefs.setLocation(location);
         String x = Config.get(Key.POSITION_X);
-        super.setX(Double.parseDouble(x));
+        stage.setX(Double.parseDouble(x));
         String y = Config.get(Key.POSITION_Y);
-        super.setY(Double.parseDouble(y));
+        stage.setY(Double.parseDouble(y));
 
         // icon.xml
         String iconPropName = Config.get(Key.ICON_PROPERTIES);
@@ -106,12 +93,12 @@ public class WeatherWidget extends Stage {
         iconProp.loadFromXML(in);
     }
 
-    public void updateForecast() {
+    public boolean updateForecast() {
         if (prefs.getLocation() == null)
-            return;
+            return false;
 
-        WeatherAPIFactory factory = WeatherAPIFactory.getInstance();
-        WeatherAPI api = factory.getWeatherAPI(prefs.getProvider());
+        WeatherApiFactory factory = WeatherApiFactory.getInstance();
+        WeatherApi api = factory.getWeatherApi(prefs.getProvider());
         try {
             Forecast[] forecast = api.getForecast(prefs.getLocation());
             date.setText(String.format(Locale.ENGLISH, "%1$tb %1$te, %1$tY", forecast[0].getDate()));
@@ -128,49 +115,43 @@ public class WeatherWidget extends Stage {
                 if (url != null)
                     icon[i].setImage(new Image(url.toString()));
             }
+            return true;
         } catch (Exception e) {
             Dialogs.create()
-                .owner(this)
+                .owner(stage)
                 .title("Exception Dialog")
                 .masthead("Exception occured!")
                 .message("Could not get weather forecast")
                 .showException(e);
+            return false;
         }
     }
 
     private void doLayout() {
-        Group root = new Group();
+        Region root = createForcastLayout();
+        root.setBackground(null);
         Scene scene = new Scene(root, 80, 320);
         scene.setFill(Color.rgb(0, 0, 0, 0.7));
-        this.setScene(scene);
-        layoutForcast(scene);
+        stage.setScene(scene);
+
         setupContextMenu();
     }
 
-    private void layoutForcast(Scene scene) {
+    private Region createForcastLayout() {
         VBox vbox = new VBox(5);
         vbox.setAlignment(Pos.CENTER);
-        vbox.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                if (e.getButton() == MouseButton.PRIMARY)
-                    contextMenu.hide();
-                if (e.getButton() == MouseButton.SECONDARY)
-                    contextMenu.show(vbox, e.getScreenX(), e.getScreenY());
-            }
+        vbox.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton() == MouseButton.PRIMARY)
+                contextMenu.hide();
+            if (event.getButton() == MouseButton.SECONDARY)
+                contextMenu.show(vbox, event.getScreenX(), event.getScreenY());
         });
-        vbox.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                pressed = e;
-            }
+        vbox.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+            pressed = event;
         });
-        vbox.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                setX(e.getScreenX() - pressed.getSceneX());
-                setY(e.getScreenY() - pressed.getSceneY());
-            }
+        vbox.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+            stage.setX(event.getScreenX() - pressed.getSceneX());
+            stage.setY(event.getScreenY() - pressed.getSceneY());
         });
 
         // Date
@@ -202,46 +183,40 @@ public class WeatherWidget extends Stage {
             }
         }
 
-        scene.setRoot(vbox);
+        return vbox;
     }
 
     private void setupContextMenu() {
         MenuItem prefMenuItem = new MenuItem("Preferences...");
-        prefMenuItem.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent event) {
-                prefsDialog.setLocationRelativeToScreen();
-                prefsDialog.show();
-            }
+        prefMenuItem.setOnAction(event -> {
+            prefsDialog.setLocationRelativeToScreen();
+            prefsDialog.show();
         });
 
         MenuItem updateMenuItem = new MenuItem("Update the forecast");
-        updateMenuItem.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent event) {
-                updateForecast();
-            }
+        updateMenuItem.setOnAction(event -> {
+            updateForecast();
         });
 
         MenuItem exitMenuItem = new MenuItem("Exit");
-        exitMenuItem.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent event) {
-                Config.set(Key.PROVIDER, prefs.getProvider().toString());
-                Config.set(Key.LOCATION, prefs.getLocation());
-                Config.set(Key.POSITION_X, Double.toString(getX()));
-                Config.set(Key.POSITION_Y, Double.toString(getY() ));
-                try {
-                    Config.write();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                System.exit(0);
+        exitMenuItem.setOnAction(event -> {
+            Config.set(Key.PROVIDER, prefs.getProvider().toString());
+            Config.set(Key.LOCATION, prefs.getLocation());
+            Config.set(Key.POSITION_X, Double.toString(stage.getX()));
+            Config.set(Key.POSITION_Y, Double.toString(stage.getY() ));
+            try {
+                Config.write();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            System.exit(0);
         });
 
-        contextMenu = new ContextMenu();
         contextMenu.getItems().addAll(prefMenuItem, updateMenuItem, new SeparatorMenuItem(), exitMenuItem);
+    }
+
+    public static void main(String[] args) {
+        launch(WeatherWidget.class, args);
     }
 
 }

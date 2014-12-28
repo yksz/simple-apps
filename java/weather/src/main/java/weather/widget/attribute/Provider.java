@@ -20,7 +20,7 @@ public enum Provider {
 
     public static Provider toProvider(String name) {
         for (Provider provider : providers)
-            if (provider.toString().equals(name))
+            if (provider.name.equals(name))
                 return provider;
         return null;
     }

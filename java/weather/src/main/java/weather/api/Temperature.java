@@ -1,6 +1,6 @@
 package weather.api;
 
-public class Temperature {
+public final class Temperature {
 
     private final int celsius;
     private final int fahrenheit;

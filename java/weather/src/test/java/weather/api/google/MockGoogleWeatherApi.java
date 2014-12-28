@@ -7,27 +7,27 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import weather.api.Forecast;
-import weather.api.WeatherAPIException;
+import weather.api.WeatherApiException;
 import weather.widget.util.Loader;
 
-public class MockGoogleWeatherAPI extends GoogleWeatherAPI {
+public class MockGoogleWeatherApi extends GoogleWeatherApi {
 
-    private static final String FILE_NAME = "google.xml";
+    private static final String RESPONSE_FILE = "google.xml";
 
     @Override
-    public Forecast[] getForecast(String location) throws WeatherAPIException {
+    public Forecast[] getForecast(String location) throws WeatherApiException {
         InputStream in;
         try {
-            File file = Loader.getResourceAsFile(FILE_NAME);
+            File file = Loader.getResourceAsFile(RESPONSE_FILE);
             in = new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new WeatherAPIException(e);
+            throw new WeatherApiException(e);
         }
 
         try {
             return super.parse(in);
         } catch (Exception e) {
-            throw new WeatherAPIException(e);
+            throw new WeatherApiException(e);
         } finally {
             try {
                 in.close();
