@@ -1,0 +1,21 @@
+.text-area {
+    -fx-background-color: black;
+    -fx-text-fill: lime;
+    -fx-font: 16 consolas;
+}
+
+.text-area .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-pane .content {
+    -fx-background-color: transparent;
+}
+
+.text-field {
+    -fx-font: 16 consolas;
+}
