@@ -1,12 +1,12 @@
-package weather.widget.attribute;
+package weather.widget;
 
-public enum Provider {
+enum Provider {
+
     GOOGLE ("Google"),
     WUNDERGROUND ("Weather Underground"),
     ;
 
     private static final Provider[] providers = Provider.values();
-
     private final String name;
 
     private Provider(String name) {
@@ -18,10 +18,11 @@ public enum Provider {
         return name;
     }
 
-    public static Provider toProvider(String name) {
+    public static Provider getByName(String name) {
         for (Provider provider : providers)
             if (provider.name.equals(name))
                 return provider;
         return null;
     }
+
 }

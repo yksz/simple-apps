@@ -1,14 +1,9 @@
 package weather.api.google;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 import weather.api.Forecast;
 import weather.api.WeatherApiException;
-import weather.widget.util.Loader;
 
 public class MockGoogleWeatherApi extends GoogleWeatherApi {
 
@@ -16,24 +11,13 @@ public class MockGoogleWeatherApi extends GoogleWeatherApi {
 
     @Override
     public Forecast[] getForecast(String location) throws WeatherApiException {
-        InputStream in;
-        try {
-            File file = Loader.getResourceAsFile(RESPONSE_FILE);
-            in = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new WeatherApiException(e);
-        }
-
-        try {
+        ClassLoader classLoader = getClass().getClassLoader();
+        try (InputStream in = classLoader.getResourceAsStream(RESPONSE_FILE)) {
+            if (in == null)
+                throw new WeatherApiException("Could not be found: " + RESPONSE_FILE);
             return super.parse(in);
         } catch (Exception e) {
             throw new WeatherApiException(e);
-        } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 

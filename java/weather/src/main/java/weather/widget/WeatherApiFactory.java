@@ -1,23 +1,19 @@
 package weather.widget;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import weather.api.WeatherApi;
 import weather.api.google.GoogleWeatherApi;
 import weather.api.wunderground.WeatherUndergroundApi;
-import weather.widget.attribute.Provider;
-import weather.widget.util.Loader;
 
 class WeatherApiFactory {
 
-    private static final String WUNDERGROUND_KEY_FILE  = "wunderground.key";
-    private static final WeatherApiFactory instance =  new WeatherApiFactory();
+    private static final String WUNDERGROUND_KEY_FILE = "wunderground.key";
     private static String wundergroundApiKey = "";
-
-    private WeatherApi google, wunderground;
+    private static WeatherApi google, wunderground;
 
     static {
         try {
@@ -30,11 +26,7 @@ class WeatherApiFactory {
     private WeatherApiFactory() {
     }
 
-    public static WeatherApiFactory getInstance() {
-        return instance;
-    }
-
-    public WeatherApi getWeatherApi(Provider provider) {
+    public static WeatherApi getWeatherApi(Provider provider) {
         switch (provider) {
         case GOOGLE:
             if (google != null)
@@ -52,18 +44,15 @@ class WeatherApiFactory {
     }
 
     private static void loadKey() throws IOException {
-        File file = Loader.getResourceAsFile(WUNDERGROUND_KEY_FILE);
-        BufferedReader in = new BufferedReader(new FileReader(file));
-        try {
+        try (InputStream in = Loader.getResourceAsStream(WUNDERGROUND_KEY_FILE);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
-            while ((line = in.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 if (line.charAt(0) == '#')
                     continue;
                 wundergroundApiKey = line.trim();
                 break;
             }
-        } finally {
-            in.close();
         }
     }
 

@@ -1,12 +1,11 @@
 package weather.api.wunderground;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 import weather.api.Forecast;
 import weather.api.Temperature;
@@ -27,9 +26,7 @@ public class WeatherUndergroundApi implements WeatherApi {
     private final String key;
 
     public WeatherUndergroundApi(String key) {
-        if (key == null)
-            throw new NullPointerException("key must not be null");
-        this.key = key;
+        this.key = Objects.requireNonNull(key, "key must not be null");
     }
 
     @Override
@@ -39,26 +36,20 @@ public class WeatherUndergroundApi implements WeatherApi {
         if (location.isEmpty())
             throw new IllegalArgumentException("location must not be empty");
 
-        URL url;
         try {
-            url = new URL(URL_PREFIX + key + URL_SUFFIX + location + EXTENSION);
-        } catch (MalformedURLException e) {
-            throw new WeatherApiException(e);
-        }
-
-        HttpURLConnection http;
-        try {
-            http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod("GET");
-            http.connect();
-        } catch (IOException e) {
-            throw new WeatherApiException(e);
-        }
-
-        try {
-            return parse(http.getInputStream());
+            URL url = new URL(URL_PREFIX + key + URL_SUFFIX + location + EXTENSION);
+            return getForecast(url);
         } catch (Exception e) {
             throw new WeatherApiException(e);
+        }
+    }
+
+    private Forecast[] getForecast(URL url) throws Exception {
+        HttpURLConnection http = (HttpURLConnection) url.openConnection();
+        http.setRequestMethod("GET");
+        http.connect();
+        try {
+            return parse(http.getInputStream());
         } finally {
             http.disconnect();
         }

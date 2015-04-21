@@ -1,4 +1,6 @@
-package weather.widget.dialog;
+package weather.widget;
+
+import java.util.Objects;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -7,33 +9,25 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-public class Dialog extends Stage {
+class Dialog extends Stage {
 
     private static final int TRANSLATE_X = 20;
     private static final int TRANSLATE_Y = 20;
 
-    protected final Scene scene;
     protected final Stage owner;
     protected final int width, height;
 
     public Dialog(Stage owner, int width, int height) {
-        if (owner == null)
-            throw new NullPointerException("owner must not be null");
-
-        this.owner = owner;
+        this.owner = Objects.requireNonNull(owner, "owner must not be null");
         this.width = width;
         this.height = height;
-
-        this.initModality(Modality.WINDOW_MODAL);
-        this.initOwner(owner);
-
-        Group root = new Group();
-        scene = new Scene(root, width, height);
-        this.setScene(scene);
+        initModality(Modality.WINDOW_MODAL);
+        initOwner(owner);
+        setScene(new Scene(new Group(), width, height));
     }
 
     public void setLocationRelativeToScreen() {
-        this.requestFocus();
+        requestFocus();
 
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
@@ -52,8 +46,8 @@ public class Dialog extends Stage {
         // left
         if (dx < bounds.getMinX())
             dx = bounds.getMinX();
-        this.setX(dx);
-        this.setY(dy);
+        setX(dx);
+        setY(dy);
     }
 
 }

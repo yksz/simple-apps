@@ -1,6 +1,6 @@
-package weather.widget.attribute;
+package weather.widget;
 
-public class Preferences {
+class Preferences {
 
     private Provider provider;
     private String location;

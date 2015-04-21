@@ -1,7 +1,5 @@
 package weather.widget;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -10,7 +8,6 @@ import java.util.Properties;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -32,134 +29,121 @@ import org.controlsfx.dialog.Dialogs;
 
 import weather.api.Forecast;
 import weather.api.WeatherApi;
-import weather.widget.attribute.Preferences;
-import weather.widget.attribute.Provider;
-import weather.widget.config.Config;
-import weather.widget.config.Config.Key;
-import weather.widget.dialog.Dialog;
-import weather.widget.dialog.PreferencesDialog;
-import weather.widget.util.Loader;
+import weather.widget.Config.Key;
 
 public class WeatherWidget extends Application {
 
     private static final int FORECAST_DAYS = 3;
+    private static final int WIDTH = 80;
+    private static final int HEIGHT = 320;
+    private static final Color BACKGROUND_COLOR = Color.rgb(0, 0, 0, 0.7);
 
-    private final Preferences prefs = new Preferences();
-    private final Properties iconProp = new Properties();
+    private final Label[] date = new Label[1];
+    private final Label[] day = new Label[FORECAST_DAYS];
+    private final Label[] temperature = new Label[FORECAST_DAYS];
+    private final ImageView[] icon = new ImageView[FORECAST_DAYS];
 
     private Stage stage;
-    private ContextMenu contextMenu = new ContextMenu();
-    private Dialog prefsDialog;
+    private final ContextMenu contextMenu = new ContextMenu();
 
-    private Label date = new Label();
-    private Label[] day = new Label[FORECAST_DAYS];
-    private Label[] temperature = new Label[FORECAST_DAYS];
-    private ImageView[] icon = new ImageView[FORECAST_DAYS];
+    private final Preferences prefs = new Preferences();
+    private final Properties iconProps = new Properties();
 
     private MouseEvent pressed;
 
+    @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
-        stage.initStyle(StageStyle.TRANSPARENT);
-
-        try {
-            loadConfig();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        prefsDialog = new PreferencesDialog(stage, this, prefs);
-
-        doLayout();
+        loadConfig();
+        Scene scene = createScene();
+        setUpContextMenu();
         updateForecast();
+        stage.setScene(scene);
+        stage.initStyle(StageStyle.TRANSPARENT);
         stage.show();
         stage.toBack();
     }
 
-    private void loadConfig() throws IOException {
+    private void loadConfig() {
         // config.xml
-        String providerName = Config.get(Key.PROVIDER);
-        prefs.setProvider(Provider.toProvider(providerName));
-        String location = Config.get(Key.LOCATION);
-        prefs.setLocation(location);
-        String x = Config.get(Key.POSITION_X);
-        stage.setX(Double.parseDouble(x));
-        String y = Config.get(Key.POSITION_Y);
-        stage.setY(Double.parseDouble(y));
+        prefs.setProvider(Provider.getByName(Config.get(Key.PROVIDER)));
+        prefs.setLocation(Config.get(Key.LOCATION));
+        stage.setX(Double.parseDouble(Config.get(Key.POSITION_X)));
+        stage.setY(Double.parseDouble(Config.get(Key.POSITION_Y)));
 
         // icon.xml
-        String iconPropName = Config.get(Key.ICON_PROPERTIES);
-        File file = Loader.getResourceAsFile(iconPropName);
-        InputStream in = new FileInputStream(file);
-        iconProp.loadFromXML(in);
-    }
-
-    public boolean updateForecast() {
-        if (prefs.getLocation() == null)
-            return false;
-
-        WeatherApiFactory factory = WeatherApiFactory.getInstance();
-        WeatherApi api = factory.getWeatherApi(prefs.getProvider());
+        String iconPropsFile = Config.get(Key.ICON_PROPERTIES_FILE);
         try {
-            Forecast[] forecast = api.getForecast(prefs.getLocation());
-            date.setText(String.format(Locale.ENGLISH, "%1$tb %1$te, %1$tY", forecast[0].getDate()));
-            for (int i = 0; i < FORECAST_DAYS; i++) {
-                day[i].setText(forecast[i].getDay());
-                temperature[i].setText(forecast[i].getLowTemperature().getCelsius()
-                        + "-" + forecast[i].getHighTemperature().getCelsius() + "℃");
-                String iconPath = iconProp.getProperty(forecast[i].getCondition());
-                if (iconPath == null)
-                    iconPath = iconProp.getProperty("Unknown");
-                if (iconPath == null)
-                    continue;
-                URL url = Loader.getResource(iconPath.trim());
-                if (url != null)
-                    icon[i].setImage(new Image(url.toString()));
-            }
-            return true;
-        } catch (Exception e) {
-            Dialogs.create()
-                .owner(stage)
-                .title("Exception Dialog")
-                .masthead("Exception occured!")
-                .message("Could not get weather forecast")
-                .showException(e);
-            return false;
+            InputStream in = Loader.getResourceAsStream(iconPropsFile);
+            iconProps.loadFromXML(in);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private void doLayout() {
+    public void updateForecast() {
+        try {
+            getForecast();
+        } catch (Exception e) {
+            Dialogs.create()
+                    .owner(stage)
+                    .title("Exception Dialog")
+                    .masthead("Exception occured!")
+                    .message("Could not get weather forecast")
+                    .showException(e);
+        }
+    }
+
+    private void getForecast() throws Exception {
+        if (prefs.getLocation() == null)
+            return;
+
+        WeatherApi api = WeatherApiFactory.getWeatherApi(prefs.getProvider());
+        Forecast[] forecast = api.getForecast(prefs.getLocation());
+        date[0].setText(String.format(Locale.ENGLISH, "%1$tb %1$te, %1$tY", forecast[0].getDate()));
+        for (int i = 0; i < FORECAST_DAYS; i++) {
+            day[i].setText(forecast[i].getDay());
+            temperature[i].setText(forecast[i].getLowTemperature().getCelsius()
+                    + "-" + forecast[i].getHighTemperature().getCelsius() + "℃");
+            String iconPath = iconProps.getProperty(forecast[i].getCondition());
+            if (iconPath == null)
+                iconPath = iconProps.getProperty("Unknown");
+            if (iconPath == null)
+                continue;
+            URL url = Loader.getResource(iconPath.trim());
+            if (url != null)
+                icon[i].setImage(new Image(url.toString()));
+        }
+    }
+
+    private Scene createScene() {
         Region root = createForcastLayout();
         root.setBackground(null);
-        Scene scene = new Scene(root, 80, 320);
-        scene.setFill(Color.rgb(0, 0, 0, 0.7));
-        stage.setScene(scene);
-
-        setupContextMenu();
+        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        scene.setFill(BACKGROUND_COLOR);
+        return scene;
     }
 
     private Region createForcastLayout() {
         VBox vbox = new VBox(5);
         vbox.setAlignment(Pos.CENTER);
-        vbox.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+        vbox.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY)
                 contextMenu.hide();
             if (event.getButton() == MouseButton.SECONDARY)
                 contextMenu.show(vbox, event.getScreenX(), event.getScreenY());
         });
-        vbox.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
-            pressed = event;
-        });
-        vbox.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+        vbox.setOnMousePressed(event -> pressed = event);
+        vbox.setOnMouseDragged(event -> {
             stage.setX(event.getScreenX() - pressed.getSceneX());
             stage.setY(event.getScreenY() - pressed.getSceneY());
         });
 
         // Date
-        date = new Label("?date?");
-        date.setFont(Font.font("System", 12));
-        date.setTextFill(Color.WHITE);
-        vbox.getChildren().add(date);
-
+        date[0] = new Label("?date?");
+        date[0].setFont(Font.font("System", 12));
+        date[0].setTextFill(Color.WHITE);
+        vbox.getChildren().add(date[0]);
         for (int i = 0; i < FORECAST_DAYS; i++) {
             // Day
             day[i] = new Label("?day?");
@@ -176,27 +160,24 @@ public class WeatherWidget extends Application {
             icon[i].setPreserveRatio(true);
             vbox.getChildren().addAll(day[i], icon[i], temperature[i]);
             // Separator
-            if (i != FORECAST_DAYS - 1) {
-                Separator separator = new Separator();
-                separator.setValignment(VPos.CENTER);
-                vbox.getChildren().add(separator);
-            }
+            if (i != FORECAST_DAYS - 1)
+                vbox.getChildren().add(new Separator());
         }
 
         return vbox;
     }
 
-    private void setupContextMenu() {
-        MenuItem prefMenuItem = new MenuItem("Preferences...");
-        prefMenuItem.setOnAction(event -> {
+    private void setUpContextMenu() {
+        PreferencesDialog prefsDialog = new PreferencesDialog(stage, this, prefs);
+
+        MenuItem prefsMenuItem = new MenuItem("Preferences...");
+        prefsMenuItem.setOnAction(event -> {
             prefsDialog.setLocationRelativeToScreen();
             prefsDialog.show();
         });
 
         MenuItem updateMenuItem = new MenuItem("Update the forecast");
-        updateMenuItem.setOnAction(event -> {
-            updateForecast();
-        });
+        updateMenuItem.setOnAction(event -> updateForecast());
 
         MenuItem exitMenuItem = new MenuItem("Exit");
         exitMenuItem.setOnAction(event -> {
@@ -212,7 +193,7 @@ public class WeatherWidget extends Application {
             System.exit(0);
         });
 
-        contextMenu.getItems().addAll(prefMenuItem, updateMenuItem, new SeparatorMenuItem(), exitMenuItem);
+        contextMenu.getItems().addAll(prefsMenuItem, updateMenuItem, new SeparatorMenuItem(), exitMenuItem);
     }
 
     public static void main(String[] args) {

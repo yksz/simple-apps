@@ -1,11 +1,10 @@
-package weather.widget.util;
+package weather.widget;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URI;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
-public class Loader {
+class Loader {
 
     public static URL getResource(String resource) {
         if (resource == null)
@@ -20,12 +19,12 @@ public class Loader {
             return classLoader.getResource(resource);
     }
 
-    public static File getResourceAsFile(String resource) throws FileNotFoundException {
+    public static InputStream getResourceAsStream(String resource) throws IOException {
         URL url = getResource(resource);
         if (url == null)
-            throw new FileNotFoundException(resource);
+            throw new IOException("Could not find the resource: " + resource);
         else
-            return new File(URI.create(url.toString()));
+            return url.openStream();
     }
 
 }

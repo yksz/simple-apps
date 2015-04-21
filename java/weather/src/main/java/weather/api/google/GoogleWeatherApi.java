@@ -1,9 +1,7 @@
 package weather.api.google;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -33,26 +31,20 @@ public class GoogleWeatherApi implements WeatherApi {
         if (location.isEmpty())
             throw new IllegalArgumentException("location must not be empty");
 
-        URL url;
         try {
-            url = new URL(URL + location + LANGUAGE);
-        } catch (MalformedURLException e) {
-            throw new WeatherApiException(e);
-        }
-
-        HttpURLConnection http;
-        try {
-            http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod("GET");
-            http.connect();
-        } catch (IOException e) {
-            throw new WeatherApiException(e);
-        }
-
-        try {
-            return parse(http.getInputStream());
+            URL url = new URL(URL + location + LANGUAGE);
+            return getForecast(url);
         } catch (Exception e) {
             throw new WeatherApiException(e);
+        }
+    }
+
+    private Forecast[] getForecast(URL url) throws Exception {
+        HttpURLConnection http = (HttpURLConnection) url.openConnection();
+        http.setRequestMethod("GET");
+        http.connect();
+        try {
+            return parse(http.getInputStream());
         } finally {
             http.disconnect();
         }
