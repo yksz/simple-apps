@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,20 +24,20 @@ import javax.swing.ImageIcon;
 
 public class Launcher {
 
-    private static final String ICON_FILE_NAME = "icon.png";
-    private static final String CONFIG_FILE_NAME = "config.xml";
+    private static final String ICON_FILE = "icon.png";
+    private static final String CONFIG_FILE = "config.xml";
 
-    private static final String TOOL_TIP = "Java Launcher";
+    private static final String TOOLTIP = "Java Launcher";
     private static final String CAPTION = "Usage";
     private static final String TEXT = "Please right click!";
 
     private final TrayIcon trayIcon;
 
     public Launcher() throws IOException {
-        URL url = Loader.getResource(ICON_FILE_NAME);
+        URL url = Loader.getResource(ICON_FILE);
         ImageIcon icon = new ImageIcon(url);
         trayIcon = new TrayIcon(icon.getImage());
-        trayIcon.setToolTip(TOOL_TIP);
+        trayIcon.setToolTip(TOOLTIP);
         trayIcon.setPopupMenu(createPopupMenu());
         trayIcon.addMouseListener(new MouseAdapter() {
             @Override
@@ -59,9 +58,9 @@ public class Launcher {
         popup.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
         // Properties
-        Properties prop = loadProperties(CONFIG_FILE_NAME);
-        List<MenuItem> itemList = createMenuItems(prop);
-        for (MenuItem item : itemList)
+        Properties props = loadProperties(CONFIG_FILE);
+        List<MenuItem> items = createMenuItems(props);
+        for (MenuItem item : items)
             popup.add(item);
 
         // Separator
@@ -81,7 +80,7 @@ public class Launcher {
     }
 
     private List<MenuItem> createMenuItems(Properties prop) {
-        List<MenuItem> itemList = new ArrayList<MenuItem>();
+        List<MenuItem> items = new ArrayList<MenuItem>();
         Map<Object, Object> map = new TreeMap<Object, Object>(prop);
         for (Object obj : map.keySet()) {
             String key = (String) obj;
@@ -104,16 +103,15 @@ public class Launcher {
                     }
                 }
             });
-            itemList.add(item);
+            items.add(item);
         }
-        return itemList;
+        return items;
     }
 
     private Properties loadProperties(String filename) throws IOException {
-        File file = Loader.getResourceAsFile(filename);
-        Properties prop = new Properties();
-        prop.loadFromXML(new FileInputStream(file));
-        return prop;
+        Properties props = new Properties();
+        props.loadFromXML(Loader.getResourceAsStream(filename));
+        return props;
     }
 
 }
