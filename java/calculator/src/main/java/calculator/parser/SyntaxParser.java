@@ -7,9 +7,9 @@ import java.util.Queue;
 import java.util.Stack;
 
 import calculator.lexer.Lexer;
+import calculator.lexer.Operator;
+import calculator.lexer.Operator.Associativity;
 import calculator.lexer.Token;
-import calculator.lexer.attribute.Associativity;
-import calculator.lexer.attribute.Operator;
 
 public class SyntaxParser {
 
@@ -61,7 +61,7 @@ public class SyntaxParser {
     }
 
     private void parseSymbol(Token token) throws SyntaxException {
-        Operator o1 = Operator.getOperator(token.getText());
+        Operator o1 = Operator.getBySymbol(token.getText());
         if (o1 == Operator.UNKNOWN)
             throw new SyntaxException("Operator is unknown");
 
@@ -80,7 +80,7 @@ public class SyntaxParser {
     }
 
     private void parseParenthesis(Token token) throws SyntaxException {
-        Operator o1 = Operator.getOperator(token.getText());
+        Operator o1 = Operator.getBySymbol(token.getText());
         if (o1 == Operator.UNKNOWN)
             throw new SyntaxException("Operator is unknown");
 

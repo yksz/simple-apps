@@ -1,8 +1,15 @@
 package calculator.lexer;
 
-import calculator.lexer.attribute.Type;
 
 public class Token {
+
+    public enum Type {
+        UNKNOWN,
+        PARENTHESIS,
+        SYMBOL,
+        NUMBER,
+        NAME,
+    }
 
     private final Type type;
     private final String text;

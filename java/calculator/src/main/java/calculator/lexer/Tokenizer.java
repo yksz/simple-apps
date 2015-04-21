@@ -2,7 +2,7 @@ package calculator.lexer;
 
 import java.util.NoSuchElementException;
 
-import calculator.lexer.attribute.Type;
+import calculator.lexer.Token.Type;
 
 public class Tokenizer {
 

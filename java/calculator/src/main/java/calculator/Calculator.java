@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Queue;
 import java.util.Stack;
 
-import calculator.lexer.attribute.Operator;
+import calculator.lexer.Operator;
 import calculator.parser.SyntaxException;
 import calculator.parser.SyntaxParser;
 
