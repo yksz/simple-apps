@@ -2,6 +2,7 @@ package interpreter;
 
 import groovy.lang.GroovyShell;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.Files;
@@ -9,26 +10,24 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class Interpreter {
 
-    private static final String INIT_GROOVY_PATH = "interpreter/init.groovy";
+    private static final String INIT_GROOVY_FILE = "interpreter/init.groovy";
 
     private final GroovyShell groovy = new GroovyShell();
     private String imports = "";
 
-    public Interpreter() {
+    public void initialize() throws Exception {
         ClassLoader loader = getClass().getClassLoader();
-        URL url = loader.getResource(INIT_GROOVY_PATH);
+        URL url = loader.getResource(INIT_GROOVY_FILE);
         if (url == null)
-            return;
-        try {
-            List<String> lines = Files.readAllLines(Paths.get(url.toURI()));
-            for (String line : lines)
-                evaluate(line);
-        } catch (Exception e) {
-        }
+            throw new IOException("Could not find the resource: " + INIT_GROOVY_FILE);
+        List<String> lines = Files.readAllLines(Paths.get(url.toURI()));
+        for (String line : lines)
+            evaluateWithGroovy(line, null);
     }
 
     public void evaluate(String str) {
@@ -46,32 +45,36 @@ public class Interpreter {
             System.out.println(imports);
         } else if (text.startsWith(":method ")) {
             handleMethodCommand(text);
-        } else if (text.startsWith("import ")) {
-            evaluateWithGroovy(text, () -> imports += text + ";\n");
         } else {
-            evaluateWithGroovy(text);
+            evaluateWithGroovy(text, result -> System.out.println("==> " + result));
         }
     }
 
-    private void evaluateWithGroovy(String text) {
-        evaluateWithGroovy(text, null);
+    private void evaluateWithGroovy(String text, Consumer<Object> func) {
+        if (text.startsWith("import ")) {
+            evaluateWithGroovy(text, func, () -> imports += text + ";\n", null);
+        } else {
+            evaluateWithGroovy(text, func, null, null);
+        }
     }
 
-    private void evaluateWithGroovy(String text, Runnable func) {
+    private void evaluateWithGroovy(String text, Consumer<Object> func,
+            Runnable succeeded, Runnable failed) {
         try {
             Object result = groovy.evaluate(imports + text);
-            System.out.println("==> " + result);
-            if (func != null) func.run();
+            if (func != null) func.accept(result);
+            if (succeeded != null) succeeded.run();
         } catch (Exception e) {
             System.err.println(e.getMessage());
+            if (failed != null) failed.run();
         }
     }
 
     private void showHelpMessage() {
         System.out.println(":exit       Exit the interpreter");
         System.out.println(":help       Display this help message");
-        System.out.println(":imports    Show imports");
         System.out.println("import      Import a class into the namespace");
+        System.out.println(":imports    Show imports");
         System.out.println(":method     Show methods of a specified class");
         System.out.println();
     }

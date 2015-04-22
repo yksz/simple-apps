@@ -27,6 +27,10 @@ public class Console extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         setUpStage(stage);
+        try {
+            interpreter.initialize();
+        } catch (Exception e) {
+        }
         stage.show();
         textField.requestFocus();
     }

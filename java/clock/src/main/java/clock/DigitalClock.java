@@ -1,10 +1,15 @@
 package clock;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
@@ -57,23 +62,16 @@ public class DigitalClock extends Application {
     private final Label label = new Label();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     private final Timeline timeline = new Timeline();
-    private final ZoneId zone;
+
+    private ZoneId timeZone = ZoneId.systemDefault();
+    private String fontFamily = "System";
+    private int fontSize = DEFAULT_FONTSIZE;
+    private String fontColor = "BLACK";
+    private String backgroundColor = "WHITESMOKE";
 
     private Stage stage;
     private final ContextMenu contextMenu = new ContextMenu();
     private double deltaWidth, deltaHeight;
-
-    public DigitalClock() {
-        this(ZoneId.systemDefault());
-    }
-
-    public DigitalClock(ZoneId zone) {
-        this.zone = zone;
-    }
-
-    public DigitalClock(String zone) {
-        this(ZoneId.of(zone));
-    }
 
     public void start() throws Exception {
         start(new Stage());
@@ -83,18 +81,21 @@ public class DigitalClock extends Application {
     public void start(Stage stage) throws Exception {
         this.stage = stage;
         setUpContextMenu();
-        setUpTimeline(stage);
+        setUpTimeline();
         Scene scene = createScene();
         stage.setScene(scene);
-        stage.setTitle(TITLE + " [" + zone + "]");
         stage.setResizable(false);
+        stage.setOnCloseRequest(event -> {
+            timeline.stop();
+            storePreferences();
+        });
+        loadPreferences();
         stage.show();
         deltaWidth = stage.getWidth() - scene.getWidth();
         deltaHeight = stage.getHeight() - scene.getHeight();
     }
 
     private Scene createScene() {
-        label.setFont(new Font(DEFAULT_FONTSIZE));
         VBox root = new VBox(label);
         root.setAlignment(Pos.CENTER);
         root.setOnMouseClicked(event -> {
@@ -106,25 +107,31 @@ public class DigitalClock extends Application {
         return new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
     }
 
-    private void setUpTimeline(Stage stage) {
-        updateTime();
+    private void setUpTimeline() {
         timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(1), event -> updateTime()));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
-        stage.setOnCloseRequest(event -> timeline.stop());
     }
 
     private void updateTime() {
-        LocalDateTime now = LocalDateTime.now(zone);
+        LocalDateTime now = LocalDateTime.now(timeZone);
         label.setText(formatter.format(now));
     }
 
+    public void setTimeZone(String zone) {
+        timeZone = ZoneId.of(zone);
+        updateTime();
+        stage.setTitle(TITLE + " [" + zone + "]");
+    }
+
     public void setFont(String family) {
+        fontFamily = family;
         double size = label.getFont().getSize();
         label.setFont(Font.font(family, size));
     }
 
     public void setFontSize(int size) {
+        fontSize = size;
         String family = label.getFont().getFamily();
         label.setFont(Font.font(family, size));
         stage.setWidth(size * WIDTH_FONTSIZE_RATE + deltaWidth);
@@ -132,19 +139,32 @@ public class DigitalClock extends Application {
     }
 
     public void setFontColor(String color) {
+        fontColor = color;
         label.setTextFill(declaredColors.get(color));
     }
 
     public void setBackgroundColor(String color) {
+        backgroundColor = color;
         stage.getScene().getRoot().setStyle("-fx-background-color: " + color);
     }
 
     private void setUpContextMenu() {
-        Menu fontMenu = createFontMenu();
-        Menu fontSizeMenu = createFontSizeMenu();
-        Menu fontColorMenu = createFontColorMenu();
-        Menu backgroundColorMenu = createBackgroundColorMenu();
-        contextMenu.getItems().addAll(fontMenu, fontSizeMenu, fontColorMenu, backgroundColorMenu);
+        contextMenu.getItems().addAll(
+                createTimeZoneMenu(),
+                createFontMenu(),
+                createFontSizeMenu(),
+                createFontColorMenu(),
+                createBackgroundColorMenu());
+    }
+
+    private Menu createTimeZoneMenu() {
+        Menu timeZoneMenu = new Menu("Time Zone");
+        ZoneId.getAvailableZoneIds().stream().forEach(zone -> {
+            MenuItem menuItem = new MenuItem(zone.toString());
+            menuItem.setOnAction(event -> setTimeZone(zone.toString()));
+            timeZoneMenu.getItems().add(menuItem);
+        });
+        return timeZoneMenu;
     }
 
     private Menu createFontMenu() {
@@ -174,6 +194,7 @@ public class DigitalClock extends Application {
         declaredColors.forEach((name, color) -> {
             MenuItem menuItem = new MenuItem(name);
             menuItem.setOnAction(event -> setFontColor(name));
+            menuItem.setStyle("-fx-background-color: " + name);
             fontColorMenu.getItems().add(menuItem);
         });
         return fontColorMenu;
@@ -184,9 +205,81 @@ public class DigitalClock extends Application {
         declaredColors.forEach((name, color) -> {
             MenuItem menuItem = new MenuItem(name);
             menuItem.setOnAction(event -> setBackgroundColor(name));
+            menuItem.setStyle("-fx-background-color: " + name);
             backgroundColorMenu.getItems().add(menuItem);
         });
         return backgroundColorMenu;
+    }
+
+    private void loadPreferences() {
+        try {
+            Preferences.load();
+        } catch (IOException e) {
+        }
+        stage.setX(Double.parseDouble(Preferences.get(Preferences.POINT_X, stage.getX())));
+        stage.setY(Double.parseDouble(Preferences.get(Preferences.POINT_Y, stage.getY())));
+        setTimeZone(Preferences.get(Preferences.TIME_ZONE, timeZone));
+        setFont(Preferences.get(Preferences.FONT_FAMILY, fontFamily));
+        setFontSize(Integer.parseInt(Preferences.get(Preferences.FONT_SIZE, fontSize)));
+        setFontColor(Preferences.get(Preferences.FONT_COLOR, fontColor));
+        setBackgroundColor(Preferences.get(Preferences.BACKGROUND_COLOR, backgroundColor));
+    }
+
+    private void storePreferences() {
+        Preferences.set(Preferences.POINT_X, stage.getX());
+        Preferences.set(Preferences.POINT_Y, stage.getY());
+        Preferences.set(Preferences.TIME_ZONE, timeZone);
+        Preferences.set(Preferences.FONT_FAMILY, fontFamily);
+        Preferences.set(Preferences.FONT_SIZE, fontSize);
+        Preferences.set(Preferences.FONT_COLOR, fontColor);
+        Preferences.set(Preferences.BACKGROUND_COLOR, backgroundColor);
+        try {
+            Preferences.store();
+        } catch (IOException e) {
+        }
+    }
+
+    private static enum Preferences {
+        POINT_X,
+        POINT_Y,
+        TIME_ZONE,
+        FONT_FAMILY,
+        FONT_SIZE,
+        FONT_COLOR,
+        BACKGROUND_COLOR,
+        ;
+
+        private static final String PREFERENCES_FILE = "digitalclock.properties";
+        private static final Properties props = new Properties();
+
+        static <T> String get(Preferences key, T defaultValue) {
+            return props.getProperty(key.toString(), defaultValue.toString());
+        }
+
+        static <T> void set(Preferences key, T value) {
+            props.setProperty(key.toString(), value.toString());
+        }
+
+        static void load() throws IOException {
+            props.load(new FileInputStream(PREFERENCES_FILE));
+        }
+
+        static void store() throws IOException {
+            try (OutputStream out = new FileOutputStream(PREFERENCES_FILE)) {
+                props.store(out, null);
+            }
+        }
+
+        private final String name;
+
+        private Preferences() {
+            name = name().toLowerCase().replaceAll("_", ".");
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     public static void main(String[] args) {
