@@ -32,12 +32,6 @@ import javafx.util.Duration;
 
 public class DigitalClock extends Application {
 
-    private static final double DEFAULT_SCENE_WIDTH = 360.0;
-    private static final double DEFAULT_SCENE_HEIGHT = 120.0;
-    private static final int DEFAULT_FONTSIZE = 60;
-    private static final double WIDTH_FONTSIZE_RATE = DEFAULT_SCENE_WIDTH / DEFAULT_FONTSIZE;
-    private static final double HEIGHT_FONTSIZE_RATE = DEFAULT_SCENE_HEIGHT / DEFAULT_FONTSIZE;
-
     private static Map<String, Color> declaredColors = getDeclaredColors();
 
     private static Map<String, Color> getDeclaredColors() {
@@ -64,7 +58,7 @@ public class DigitalClock extends Application {
 
     private ZoneId timeZone = ZoneId.systemDefault();
     private String fontFamily = "System";
-    private int fontSize = DEFAULT_FONTSIZE;
+    private int fontSize = 60;
     private String fontColor = "BLACK";
     private String backgroundColor = "WHITESMOKE";
 
@@ -104,7 +98,7 @@ public class DigitalClock extends Application {
             if (event.getButton() == MouseButton.SECONDARY)
                 contextMenu.show(root, event.getScreenX(), event.getScreenY());
         });
-        return new Scene(root, DEFAULT_SCENE_WIDTH, DEFAULT_SCENE_HEIGHT);
+        return new Scene(root);
     }
 
     private void setUpTimeline() {
@@ -120,22 +114,30 @@ public class DigitalClock extends Application {
 
     public void setTimeZone(String zone) {
         timeZone = ZoneId.of(zone);
-        updateTime();
         stage.setTitle(zone);
+        updateTime();
     }
 
     public void setFont(String family) {
         fontFamily = family;
         double size = label.getFont().getSize();
         label.setFont(Font.font(family, size));
+        label.autosize();
+        if (label.getWidth() != 0.0 && label.getHeight() != 0.0) {
+            stage.setWidth(label.getWidth() + size + deltaWidth);
+            stage.setHeight(label.getHeight() + size + deltaHeight);
+        }
     }
 
     public void setFontSize(int size) {
         fontSize = size;
         String family = label.getFont().getFamily();
         label.setFont(Font.font(family, size));
-        stage.setWidth(size * WIDTH_FONTSIZE_RATE + deltaWidth);
-        stage.setHeight(size * HEIGHT_FONTSIZE_RATE + deltaHeight);
+        label.autosize();
+        if (label.getWidth() != 0.0 && label.getHeight() != 0.0) {
+            stage.setWidth(label.getWidth() + size + deltaWidth);
+            stage.setHeight(label.getHeight() + size + deltaHeight);
+        }
     }
 
     public void setFontColor(String color) {
@@ -193,8 +195,8 @@ public class DigitalClock extends Application {
         Menu fontColorMenu = new Menu("Font Color");
         declaredColors.forEach((name, color) -> {
             MenuItem menuItem = new MenuItem(name);
-            menuItem.setOnAction(event -> setFontColor(name));
             menuItem.setStyle("-fx-background-color: " + name);
+            menuItem.setOnAction(event -> setFontColor(name));
             fontColorMenu.getItems().add(menuItem);
         });
         return fontColorMenu;
@@ -204,8 +206,8 @@ public class DigitalClock extends Application {
         Menu backgroundColorMenu = new Menu("Background Color");
         declaredColors.forEach((name, color) -> {
             MenuItem menuItem = new MenuItem(name);
-            menuItem.setOnAction(event -> setBackgroundColor(name));
             menuItem.setStyle("-fx-background-color: " + name);
+            menuItem.setOnAction(event -> setBackgroundColor(name));
             backgroundColorMenu.getItems().add(menuItem);
         });
         return backgroundColorMenu;
@@ -216,8 +218,10 @@ public class DigitalClock extends Application {
             Preferences.load();
         } catch (IOException e) {
         }
-        stage.setX(Double.parseDouble(Preferences.get(Preferences.POINT_X, stage.getX())));
-        stage.setY(Double.parseDouble(Preferences.get(Preferences.POINT_Y, stage.getY())));
+        stage.setX(Double.parseDouble(Preferences.get(Preferences.X, stage.getX())));
+        stage.setY(Double.parseDouble(Preferences.get(Preferences.Y, stage.getY())));
+        stage.setWidth(Double.parseDouble(Preferences.get(Preferences.WIDTH, stage.getWidth())));
+        stage.setHeight(Double.parseDouble(Preferences.get(Preferences.HEIGHT, stage.getWidth())));
         setTimeZone(Preferences.get(Preferences.TIME_ZONE, timeZone));
         setFont(Preferences.get(Preferences.FONT_FAMILY, fontFamily));
         setFontSize(Integer.parseInt(Preferences.get(Preferences.FONT_SIZE, fontSize)));
@@ -226,8 +230,10 @@ public class DigitalClock extends Application {
     }
 
     private void storePreferences() {
-        Preferences.set(Preferences.POINT_X, stage.getX());
-        Preferences.set(Preferences.POINT_Y, stage.getY());
+        Preferences.set(Preferences.X, stage.getX());
+        Preferences.set(Preferences.Y, stage.getY());
+        Preferences.set(Preferences.WIDTH, stage.getWidth());
+        Preferences.set(Preferences.HEIGHT, stage.getHeight());
         Preferences.set(Preferences.TIME_ZONE, timeZone);
         Preferences.set(Preferences.FONT_FAMILY, fontFamily);
         Preferences.set(Preferences.FONT_SIZE, fontSize);
@@ -240,8 +246,10 @@ public class DigitalClock extends Application {
     }
 
     private static enum Preferences {
-        POINT_X,
-        POINT_Y,
+        X,
+        Y,
+        WIDTH,
+        HEIGHT,
         TIME_ZONE,
         FONT_FAMILY,
         FONT_SIZE,
