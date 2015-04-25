@@ -32,12 +32,11 @@ import javafx.util.Duration;
 
 public class DigitalClock extends Application {
 
-    private static final String TITLE = "Digital Clock";
-    private static final double SCENE_WIDTH = 300.0;
-    private static final double SCENE_HEIGHT = 120.0;
+    private static final double DEFAULT_SCENE_WIDTH = 360.0;
+    private static final double DEFAULT_SCENE_HEIGHT = 120.0;
     private static final int DEFAULT_FONTSIZE = 60;
-    private static final double WIDTH_FONTSIZE_RATE = SCENE_WIDTH / DEFAULT_FONTSIZE;
-    private static final double HEIGHT_FONTSIZE_RATE = SCENE_HEIGHT / DEFAULT_FONTSIZE;
+    private static final double WIDTH_FONTSIZE_RATE = DEFAULT_SCENE_WIDTH / DEFAULT_FONTSIZE;
+    private static final double HEIGHT_FONTSIZE_RATE = DEFAULT_SCENE_HEIGHT / DEFAULT_FONTSIZE;
 
     private static Map<String, Color> declaredColors = getDeclaredColors();
 
@@ -84,15 +83,16 @@ public class DigitalClock extends Application {
         setUpTimeline();
         Scene scene = createScene();
         stage.setScene(scene);
-        stage.setResizable(false);
+        stage.setOnShown(event -> {
+            deltaWidth = stage.getWidth() - scene.getWidth();
+            deltaHeight = stage.getHeight() - scene.getHeight();
+        });
         stage.setOnCloseRequest(event -> {
             timeline.stop();
             storePreferences();
         });
         loadPreferences();
         stage.show();
-        deltaWidth = stage.getWidth() - scene.getWidth();
-        deltaHeight = stage.getHeight() - scene.getHeight();
     }
 
     private Scene createScene() {
@@ -104,7 +104,7 @@ public class DigitalClock extends Application {
             if (event.getButton() == MouseButton.SECONDARY)
                 contextMenu.show(root, event.getScreenX(), event.getScreenY());
         });
-        return new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+        return new Scene(root, DEFAULT_SCENE_WIDTH, DEFAULT_SCENE_HEIGHT);
     }
 
     private void setUpTimeline() {
@@ -121,7 +121,7 @@ public class DigitalClock extends Application {
     public void setTimeZone(String zone) {
         timeZone = ZoneId.of(zone);
         updateTime();
-        stage.setTitle(TITLE + " [" + zone + "]");
+        stage.setTitle(zone);
     }
 
     public void setFont(String family) {
@@ -159,7 +159,7 @@ public class DigitalClock extends Application {
 
     private Menu createTimeZoneMenu() {
         Menu timeZoneMenu = new Menu("Time Zone");
-        ZoneId.getAvailableZoneIds().stream().forEach(zone -> {
+        ZoneId.getAvailableZoneIds().stream().sorted().forEach(zone -> {
             MenuItem menuItem = new MenuItem(zone.toString());
             menuItem.setOnAction(event -> setTimeZone(zone.toString()));
             timeZoneMenu.getItems().add(menuItem);
@@ -179,7 +179,7 @@ public class DigitalClock extends Application {
 
     private Menu createFontSizeMenu() {
         Menu fontSizeMenu = new Menu("Font Size");
-        IntStream.rangeClosed(8, 100)
+        IntStream.rangeClosed(8, 200)
                 .filter(n -> n % 4 == 0)
                 .forEach(fontSize -> {
                     MenuItem menuItem = new MenuItem(String.valueOf(fontSize));
