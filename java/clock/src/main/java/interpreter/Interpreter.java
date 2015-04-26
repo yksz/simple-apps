@@ -1,133 +1,59 @@
 package interpreter;
 
-import groovy.lang.GroovyShell;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
+import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
-public class Interpreter {
+import javax.script.ScriptEngine;
 
-    private static final String INIT_GROOVY_FILE = "interpreter/init.groovy";
+public abstract class Interpreter {
 
-    private final GroovyShell groovy = new GroovyShell();
-    private String imports = "";
+    protected final ScriptEngine engine;
 
-    public void initialize() throws Exception {
+    public Interpreter(ScriptEngine engine) {
+        this.engine = engine;
+    }
+
+    public void setWriter(Writer writer) {
+        engine.getContext().setWriter(writer);
+    }
+
+    public void setErrorWriter(Writer writer) {
+        engine.getContext().setErrorWriter(writer);
+    }
+
+    public abstract void initialize();
+
+    protected void initialize(String resourceName) {
         ClassLoader loader = getClass().getClassLoader();
-        URL url = loader.getResource(INIT_GROOVY_FILE);
+        URL url = loader.getResource(resourceName);
         if (url == null)
-            throw new IOException("Could not find the resource: " + INIT_GROOVY_FILE);
-        List<String> lines = Files.readAllLines(Paths.get(url.toURI()));
-        for (String line : lines)
-            evaluateWithGroovy(line, null);
-    }
-
-    public void evaluate(String str) {
-        Objects.requireNonNull(str, "str must not be null");
-
-        String text = str.trim();
-        System.out.println("> " + text);
-        if (text.equals("")) {
-            // ignore
-        } else if (text.equals(":exit")) {
-            System.exit(0);
-        } else if (text.equals(":help")) {
-            showHelpMessage();
-        } else if (text.equals(":imports")) {
-            System.out.println(imports);
-        } else if (text.startsWith(":method ")) {
-            handleMethodCommand(text);
-        } else {
-            evaluateWithGroovy(text, result -> System.out.println("==> " + result));
-        }
-    }
-
-    private void evaluateWithGroovy(String text, Consumer<Object> func) {
-        if (text.startsWith("import ")) {
-            evaluateWithGroovy(text, func, () -> imports += text + ";\n", null);
-        } else {
-            evaluateWithGroovy(text, func, null, null);
-        }
-    }
-
-    private void evaluateWithGroovy(String text, Consumer<Object> func,
-            Runnable succeeded, Runnable failed) {
+            return;
         try {
-            Object result = groovy.evaluate(imports + text);
-            if (func != null) func.accept(result);
-            if (succeeded != null) succeeded.run();
+            List<String> lines = Files.readAllLines(Paths.get(url.toURI()));
+            for (String line : lines)
+                evaluateWithScriptEngine(line, null);
+        } catch (Exception e) {
+        }
+    }
+
+    public abstract void evaluate(String str);
+
+    protected void evaluateWithScriptEngine(String script) {
+        evaluateWithScriptEngine(script, result -> System.out.println("==> " + result));
+    }
+
+    protected void evaluateWithScriptEngine(String script, Consumer<Object> func) {
+        try {
+            Object result = engine.eval(script);
+            if (func != null)
+                func.accept(result);
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            if (failed != null) failed.run();
         }
-    }
-
-    private void showHelpMessage() {
-        System.out.println(":exit       Exit the interpreter");
-        System.out.println(":help       Display this help message");
-        System.out.println("import      Import a class into the namespace");
-        System.out.println(":imports    Show imports");
-        System.out.println(":method     Show methods of a specified class");
-        System.out.println();
-    }
-
-    private void handleMethodCommand(String text) {
-        String[] strs = text.substring(":method ".length()).trim().split(" ");
-        try {
-            showMethod(Class.forName(strs[0]), strs.length > 1 ? strs[1] : null);
-        } catch (ClassNotFoundException e) {
-            System.err.println(e);
-        }
-    }
-
-    private void showMethod(Class<?> clazz, String prefix) {
-        List<String> methodStrings = new LinkedList<>();
-        for (Method method : clazz.getMethods())
-            methodStrings.add(getMethodString(method));
-        Stream<String> stream = methodStrings.stream();
-        if (prefix != null)
-            stream = stream.filter(str -> str.startsWith(prefix));
-        stream.forEach(System.out::println);
-        System.out.println();
-    }
-
-    /**
-     * FORMAT
-     * <pre>
-     *  methodName(paramType, ...) : returnType - declaringClass
-     * </pre>
-     */
-    private String getMethodString(Method method) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(method.getName());
-        builder.append("(");
-        Class<?>[] params = method.getParameterTypes();
-        if (params.length != 0) {
-            builder.append(getClassName(params[0].getTypeName()));
-            for (int i = 1; i < params.length; i++) {
-                builder.append(", ");
-                builder.append(getClassName(params[i].getTypeName()));
-            }
-        }
-        builder.append(")");
-        builder.append(" : ");
-        builder.append(getClassName(method.getReturnType().getTypeName()));
-        builder.append(" - ");
-        builder.append(getClassName(method.getDeclaringClass().getTypeName()));
-        return builder.toString();
-    }
-
-    private String getClassName(String fqcn) {
-        int lastIndex = fqcn.lastIndexOf(".");
-        return lastIndex != -1 ? fqcn.substring(lastIndex + 1) : fqcn;
     }
 
 }

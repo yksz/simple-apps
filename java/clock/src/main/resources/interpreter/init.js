@@ -1,0 +1,6 @@
+print('# usage:')
+print('#   var DigitalClock = Java.type("clock.DigitalClock")')
+print('#   dc = new DigitalClock()')
+print('#   dc.start()')
+print('#   dc.setTimeZone("GMT")')
+print('#   dc.setFontSize(100)')
