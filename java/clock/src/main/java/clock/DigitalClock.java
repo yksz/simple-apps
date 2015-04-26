@@ -18,12 +18,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -64,7 +66,6 @@ public class DigitalClock extends Application {
 
     private Stage stage;
     private final ContextMenu contextMenu = new ContextMenu();
-    private double deltaWidth, deltaHeight;
 
     public void start() throws Exception {
         start(new Stage());
@@ -77,10 +78,6 @@ public class DigitalClock extends Application {
         setUpTimeline();
         Scene scene = createScene();
         stage.setScene(scene);
-        stage.setOnShown(event -> {
-            deltaWidth = stage.getWidth() - scene.getWidth();
-            deltaHeight = stage.getHeight() - scene.getHeight();
-        });
         stage.setOnCloseRequest(event -> {
             timeline.stop();
             storePreferences();
@@ -92,12 +89,7 @@ public class DigitalClock extends Application {
     private Scene createScene() {
         VBox root = new VBox(label);
         root.setAlignment(Pos.CENTER);
-        root.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY)
-                contextMenu.hide();
-            if (event.getButton() == MouseButton.SECONDARY)
-                contextMenu.show(root, event.getScreenX(), event.getScreenY());
-        });
+        root.setOnMouseClicked(event -> showAndHideContextMenu(root, event));
         return new Scene(root);
     }
 
@@ -122,22 +114,14 @@ public class DigitalClock extends Application {
         fontFamily = family;
         double size = label.getFont().getSize();
         label.setFont(Font.font(family, size));
-        label.autosize();
-        if (label.getWidth() != 0.0 && label.getHeight() != 0.0) {
-            stage.setWidth(label.getWidth() + size + deltaWidth);
-            stage.setHeight(label.getHeight() + size + deltaHeight);
-        }
+        stage.sizeToScene();
     }
 
     public void setFontSize(int size) {
         fontSize = size;
         String family = label.getFont().getFamily();
         label.setFont(Font.font(family, size));
-        label.autosize();
-        if (label.getWidth() != 0.0 && label.getHeight() != 0.0) {
-            stage.setWidth(label.getWidth() + size + deltaWidth);
-            stage.setHeight(label.getHeight() + size + deltaHeight);
-        }
+        stage.sizeToScene();
     }
 
     public void setFontColor(String color) {
@@ -211,6 +195,13 @@ public class DigitalClock extends Application {
             backgroundColorMenu.getItems().add(menuItem);
         });
         return backgroundColorMenu;
+    }
+
+    private void showAndHideContextMenu(Node anchor, MouseEvent event) {
+        if (event.getButton() == MouseButton.PRIMARY)
+            contextMenu.hide();
+        if (event.getButton() == MouseButton.SECONDARY)
+            contextMenu.show(anchor, event.getScreenX(), event.getScreenY());
     }
 
     private void loadPreferences() {
