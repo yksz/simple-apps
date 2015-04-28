@@ -33,13 +33,12 @@ import javafx.util.Duration;
 
 public class AnalogClock extends Application {
 
-    private static final double SIZE = 80.0;
-    private static final double CENTER_X = SIZE;
-    private static final double CENTER_Y = SIZE;
-    private static final double RADIUS= SIZE;
-    private static final double DEGREES_PER_HOUR = 360 / 12;
-    private static final double DEGREES_PER_MINUTE = 360 / 60;
-    private static final double DEGREES_PER_SECOND = 360 / 60;
+    private static final double CENTER_X = 100.0;
+    private static final double CENTER_Y = 100.0;
+    private static final double RADIUS= 80.0;
+    private static final double DEGREES_PER_HOUR = 360.0 / 12;
+    private static final double DEGREES_PER_MINUTE = 360.0 / 60;
+    private static final double DEGREES_PER_SECOND = 360.0 / 60;
 
     private static Map<String, Color> declaredColors = getDeclaredColors();
 
@@ -66,7 +65,6 @@ public class AnalogClock extends Application {
     private final Rotate hourHandRotate = new Rotate(0, CENTER_X, CENTER_Y);
     private final Rotate minuteHandRotate = new Rotate(0, CENTER_X, CENTER_Y);
     private final Rotate secondHandRotate = new Rotate(0, CENTER_X, CENTER_Y);
-
     private final Timeline timeline = new Timeline();
     private ZoneId timeZone = ZoneId.systemDefault();
 
@@ -86,6 +84,7 @@ public class AnalogClock extends Application {
         stage.setScene(createScene());
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.sizeToScene();
+        stage.setOnCloseRequest(event -> timeline.stop());
         stage.show();
     }
 
@@ -129,8 +128,8 @@ public class AnalogClock extends Application {
     private Node createTickMarks() {
         List<Node> tickMarks = IntStream.range(0, 60).mapToObj(n -> {
             Line line = (n % 5 == 0) ?
-                    new Line(CENTER_X, RADIUS * 0.02, CENTER_X, RADIUS * 0.15) :
-                    new Line(CENTER_X, RADIUS * 0.05, CENTER_X, RADIUS * 0.07);
+                    new Line(CENTER_X, CENTER_Y - RADIUS * 0.85, CENTER_X, CENTER_Y - RADIUS * 0.98) :
+                    new Line(CENTER_X, CENTER_Y - RADIUS * 0.92, CENTER_X, CENTER_Y - RADIUS * 0.95);
             line.setStrokeWidth(2);
             line.getTransforms().add(new Rotate(DEGREES_PER_MINUTE * n, CENTER_X, CENTER_Y));
             return line;
@@ -139,8 +138,8 @@ public class AnalogClock extends Application {
     }
 
     private Node setUpTimeZoneLabel() {
-        timeZoneLabel.setLayoutX(CENTER_X * 0.35);
-        timeZoneLabel.setLayoutY(CENTER_Y * 0.55);
+        timeZoneLabel.setLayoutX(CENTER_X - RADIUS * 0.65);
+        timeZoneLabel.setLayoutY(CENTER_Y - RADIUS * 0.45);
         setTimeZone(timeZone.toString());
         return timeZoneLabel;
     }
@@ -150,8 +149,8 @@ public class AnalogClock extends Application {
         hourHand.setStartX(CENTER_X);
         hourHand.setStartY(CENTER_Y);
         hourHand.setEndX(CENTER_X);
-        hourHand.setEndY(RADIUS * 0.3);
-        hourHand.setStrokeWidth(3);
+        hourHand.setEndY(CENTER_Y - RADIUS * 0.7);
+        hourHand.setStrokeWidth(4);
         hourHand.getTransforms().add(hourHandRotate);
         return hourHand;
     }
@@ -161,8 +160,8 @@ public class AnalogClock extends Application {
         minuteHand.setStartX(CENTER_X);
         minuteHand.setStartY(CENTER_Y);
         minuteHand.setEndX(CENTER_X);
-        minuteHand.setEndY(RADIUS * 0.1);
-        minuteHand.setStrokeWidth(3);
+        minuteHand.setEndY(CENTER_Y - RADIUS * 0.9);
+        minuteHand.setStrokeWidth(4);
         minuteHand.getTransforms().add(minuteHandRotate);
         return minuteHand;
     }
@@ -172,8 +171,9 @@ public class AnalogClock extends Application {
         secondHand.setStartX(CENTER_X);
         secondHand.setStartY(CENTER_Y);
         secondHand.setEndX(CENTER_X);
-        secondHand.setEndY(RADIUS * 0.2);
+        secondHand.setEndY(CENTER_Y - RADIUS * 0.8);
         secondHand.setStroke(Color.RED);
+        secondHand.setStrokeWidth(2);
         secondHand.getTransforms().add(secondHandRotate);
         return secondHand;
     }
@@ -186,18 +186,23 @@ public class AnalogClock extends Application {
 
     private void tick() {
         LocalTime time = LocalTime.now(timeZone);
-        hourHandRotate.setAngle(time.getHour() * DEGREES_PER_HOUR);
+        hourHandRotate.setAngle((time.getHour() + time.getMinute() / 60.0) * DEGREES_PER_HOUR);
         minuteHandRotate.setAngle(time.getMinute() * DEGREES_PER_MINUTE);
         secondHandRotate.setAngle(time.getSecond() * DEGREES_PER_SECOND);
     }
 
     public void setTimeZone(String zone) {
         timeZone = ZoneId.of(zone);
+        timeZoneLabel.setText(getShortZoneString(zone));
+        tick();
+    }
+
+    private String getShortZoneString(String zone) {
         int index = zone.lastIndexOf("/");
         if (index != -1)
-            zone = zone.substring(index + 1);
-        timeZoneLabel.setText(zone);
-        tick();
+            return zone.substring(index + 1);
+        else
+            return zone;
     }
 
     public void setBackgroundColor(String color) {
