@@ -5,6 +5,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import javax.script.ScriptEngine;
@@ -14,7 +15,7 @@ public abstract class Interpreter {
     protected final ScriptEngine engine;
 
     public Interpreter(ScriptEngine engine) {
-        this.engine = engine;
+        this.engine = Objects.requireNonNull(engine, "engine must not be null");
     }
 
     public void setWriter(Writer writer) {
@@ -30,13 +31,16 @@ public abstract class Interpreter {
     protected void initialize(String resourceName) {
         ClassLoader loader = getClass().getClassLoader();
         URL url = loader.getResource(resourceName);
-        if (url == null)
+        if (url == null) {
+            System.err.println("Resource not found: " + resourceName);
             return;
+        }
         try {
             List<String> lines = Files.readAllLines(Paths.get(url.toURI()));
             for (String line : lines)
                 evaluateWithScriptEngine(line, null);
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

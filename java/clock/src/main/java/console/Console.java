@@ -31,14 +31,7 @@ public class Console extends Application {
     public Console() {
         System.setOut(new PrintStream(textAreaOut, true));
         System.setErr(new PrintStream(textAreaOut, true));
-    }
-
-    @Override
-    public void start(Stage stage) throws Exception {
         setUpInterpreter();
-        setUpStage(stage);
-        stage.show();
-        textField.requestFocus();
     }
 
     private void setUpInterpreter() {
@@ -46,6 +39,13 @@ public class Console extends Application {
         interpreter.setErrorWriter(new PrintWriter(textAreaOut, true));
         interpreter.initialize();
         interpreter.evaluate("");
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        setUpStage(stage);
+        stage.show();
+        textField.requestFocus();
     }
 
     private void setUpStage(Stage stage) {
