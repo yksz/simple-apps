@@ -10,3 +10,22 @@ repositories {
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.2.2'
 }
+
+jar {
+    def libPath = configurations.compile.collect { "lib/${it.name}" }.join(' ')
+    manifest {
+        attributes 'Main-Class': 'console.Console'
+        attributes 'Class-Path': '. res/ ' + libPath
+    }
+    sourceSets.main.resources.exclude '*'
+}
+
+task release(type: Zip, dependsOn: jar) {
+    from jar.archivePath // jar
+    into('res') {
+        from sourceSets.main.resources.srcDirs // resource
+    }
+    into('lib') {
+        from configurations.compile // oss
+    }
+}
