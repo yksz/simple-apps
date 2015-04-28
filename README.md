@@ -4,6 +4,7 @@ Simple Applications
 Java
 ----
 * Calculator
+* Clock
 * Launcher
 * Weather
 
