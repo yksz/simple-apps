@@ -55,21 +55,20 @@ public class WeatherWidget extends Application {
     public void start(Stage stage) throws Exception {
         this.stage = stage;
         loadConfig();
-        Scene scene = createScene();
         setUpContextMenu();
-        updateForecast();
-        stage.setScene(scene);
+        stage.setScene(createScene());
         stage.initStyle(StageStyle.TRANSPARENT);
+        updateForecast();
         stage.show();
         stage.toBack();
     }
 
     private void loadConfig() {
         // config.xml
-        prefs.setProvider(Provider.getByName(Config.get(Key.PROVIDER)));
+        stage.setX(Double.parseDouble(Config.get(Key.WIDGET_X)));
+        stage.setY(Double.parseDouble(Config.get(Key.WIDGET_Y)));
+        prefs.setProvider(Provider.getByName(Config.get(Key.WEBAPI_PROVIDER)));
         prefs.setLocation(Config.get(Key.LOCATION));
-        stage.setX(Double.parseDouble(Config.get(Key.POSITION_X)));
-        stage.setY(Double.parseDouble(Config.get(Key.POSITION_Y)));
 
         // icon.xml
         String iconPropsFile = Config.get(Key.ICON_PROPERTIES_FILE);
@@ -181,12 +180,12 @@ public class WeatherWidget extends Application {
 
         MenuItem exitMenuItem = new MenuItem("Exit");
         exitMenuItem.setOnAction(event -> {
-            Config.set(Key.PROVIDER, prefs.getProvider().toString());
+            Config.set(Key.WIDGET_X, Double.toString(stage.getX()));
+            Config.set(Key.WIDGET_Y, Double.toString(stage.getY() ));
+            Config.set(Key.WEBAPI_PROVIDER, prefs.getProvider().toString());
             Config.set(Key.LOCATION, prefs.getLocation());
-            Config.set(Key.POSITION_X, Double.toString(stage.getX()));
-            Config.set(Key.POSITION_Y, Double.toString(stage.getY() ));
             try {
-                Config.write();
+                Config.store();
             } catch (IOException e) {
                 e.printStackTrace();
             }

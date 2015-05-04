@@ -11,16 +11,23 @@ class Config {
 
     public enum Key {
         ICON_PROPERTIES_FILE ("icon.xml"),
-        POSITION_X ("100"),
-        POSITION_Y ("100"),
-        PROVIDER ("Weather Underground"),
+        WIDGET_X ("100"),
+        WIDGET_Y ("100"),
+        WEBAPI_PROVIDER ("Weather Underground"),
         LOCATION (""),
         ;
 
+        private final String name;
         private final String defaultValue;
 
         private Key(String defaultValue) {
+            name = name().toLowerCase().replaceAll("_", ".");
             this.defaultValue = defaultValue;
+        }
+
+        @Override
+        public String toString() {
+            return name;
         }
 
         public String getDefaultValue() {
@@ -33,7 +40,7 @@ class Config {
 
     static {
         try {
-            loadProperties();
+            load();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,20 +50,20 @@ class Config {
     }
 
     public static String get(Key key) {
-        return props.getProperty(key.name(), key.getDefaultValue());
+        return props.getProperty(key.toString(), key.getDefaultValue());
     }
 
     public static void set(Key key, String value) {
-        props.setProperty(key.name(), value);
+        props.setProperty(key.toString(), value);
     }
 
-    public static void write() throws IOException {
+    public static void store() throws IOException {
         try (OutputStream out = new FileOutputStream(CONFIG_FILE)) {
             props.storeToXML(out, null);
         }
     }
 
-    private static void loadProperties() throws IOException {
+    private static void load() throws IOException {
         InputStream in = new FileInputStream(CONFIG_FILE);
         props.loadFromXML(in);
     }
