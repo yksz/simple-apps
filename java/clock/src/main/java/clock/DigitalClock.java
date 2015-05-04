@@ -76,8 +76,7 @@ public class DigitalClock extends Application {
         this.stage = stage;
         setUpContextMenu();
         setUpTimeline();
-        Scene scene = createScene();
-        stage.setScene(scene);
+        stage.setScene(createScene());
         stage.setOnCloseRequest(event -> {
             timeline.stop();
             storePreferences();
@@ -208,11 +207,12 @@ public class DigitalClock extends Application {
         try {
             Preferences.load();
         } catch (IOException e) {
+            e.printStackTrace();
         }
-        stage.setX(Double.parseDouble(Preferences.get(Preferences.X, stage.getX())));
-        stage.setY(Double.parseDouble(Preferences.get(Preferences.Y, stage.getY())));
-        stage.setWidth(Double.parseDouble(Preferences.get(Preferences.WIDTH, stage.getWidth())));
-        stage.setHeight(Double.parseDouble(Preferences.get(Preferences.HEIGHT, stage.getWidth())));
+        stage.setX(Double.parseDouble(Preferences.get(Preferences.STAGE_X, stage.getX())));
+        stage.setY(Double.parseDouble(Preferences.get(Preferences.STAGE_Y, stage.getY())));
+        stage.setWidth(Double.parseDouble(Preferences.get(Preferences.STAGE_WIDTH, stage.getWidth())));
+        stage.setHeight(Double.parseDouble(Preferences.get(Preferences.STAGE_HEIGHT, stage.getWidth())));
         setTimeZone(Preferences.get(Preferences.TIME_ZONE, timeZone));
         setFont(Preferences.get(Preferences.FONT_FAMILY, fontFamily));
         setFontSize(Integer.parseInt(Preferences.get(Preferences.FONT_SIZE, fontSize)));
@@ -221,10 +221,10 @@ public class DigitalClock extends Application {
     }
 
     private void storePreferences() {
-        Preferences.set(Preferences.X, stage.getX());
-        Preferences.set(Preferences.Y, stage.getY());
-        Preferences.set(Preferences.WIDTH, stage.getWidth());
-        Preferences.set(Preferences.HEIGHT, stage.getHeight());
+        Preferences.set(Preferences.STAGE_X, stage.getX());
+        Preferences.set(Preferences.STAGE_Y, stage.getY());
+        Preferences.set(Preferences.STAGE_WIDTH, stage.getWidth());
+        Preferences.set(Preferences.STAGE_HEIGHT, stage.getHeight());
         Preferences.set(Preferences.TIME_ZONE, timeZone);
         Preferences.set(Preferences.FONT_FAMILY, fontFamily);
         Preferences.set(Preferences.FONT_SIZE, fontSize);
@@ -233,14 +233,15 @@ public class DigitalClock extends Application {
         try {
             Preferences.store();
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     private static enum Preferences {
-        X,
-        Y,
-        WIDTH,
-        HEIGHT,
+        STAGE_X,
+        STAGE_Y,
+        STAGE_WIDTH,
+        STAGE_HEIGHT,
         TIME_ZONE,
         FONT_FAMILY,
         FONT_SIZE,
