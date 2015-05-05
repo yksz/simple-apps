@@ -29,8 +29,8 @@ class Processor {
             public void run() {
                 BufferedInputStream bin = new BufferedInputStream(in);
                 try {
-                    int len;
                     byte[] buf = new byte[1024];
+                    int len;
                     while ((len = bin.read(buf)) != -1)
                         out.write(buf, 0, len);
                     out.flush();
