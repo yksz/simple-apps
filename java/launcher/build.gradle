@@ -17,13 +17,7 @@ jar {
     sourceSets.main.resources.exclude '*'
 }
 
-task release(dependsOn: assemble) << {
-    copy { // resource
-        from sourceSets.main.resources.srcDirs
-        into distsDir
-    }
-    copy { // jar
-        from libsDir
-        into distsDir
-    }
+task release(type: Zip, dependsOn: jar) {
+    from jar.archivePath // jar
+    from sourceSets.main.resources.srcDirs // resource
 }

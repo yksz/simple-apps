@@ -29,7 +29,7 @@ jar {
 task release(type: Zip, dependsOn: jar) {
     from jar.archivePath // jar
     from sourceSets.main.resources.srcDirs // resource
-    into ('lib') {
-        from configurations.compile // oss
+    into('lib') {
+        from configurations.compile // library
     }
 }
