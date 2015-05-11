@@ -207,7 +207,6 @@ public class DigitalClock extends Application {
         try {
             Preferences.load();
         } catch (IOException e) {
-            e.printStackTrace();
         }
         stage.setX(Double.parseDouble(Preferences.get(Preferences.STAGE_X, stage.getX())));
         stage.setY(Double.parseDouble(Preferences.get(Preferences.STAGE_Y, stage.getY())));
@@ -233,7 +232,6 @@ public class DigitalClock extends Application {
         try {
             Preferences.store();
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
