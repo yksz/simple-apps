@@ -8,30 +8,30 @@ public class Expression {
         builder = new StringBuilder();
     }
 
-    public Expression append(String str) {
+    Expression append(String str) {
         builder.append(str);
         return this;
     }
 
-    public Expression clear() {
+    Expression clear() {
         builder.delete(0, builder.length());
         return this;
     }
 
-    public Expression deleteLastChar() {
+    Expression deleteLastChar() {
         if (builder.length() > 0)
             builder.deleteCharAt(builder.length() - 1);
         return this;
     }
 
-    public String toString() {
-        return builder.toString();
-    }
-
-    public Expression setString(String str) {
+    Expression setString(String str) {
         clear();
         append(str);
         return this;
+    }
+
+    public String toString() {
+        return builder.toString();
     }
 
 }

@@ -1,7 +1,8 @@
 package gui.view;
 
-import gui.controller.Controller;
-import gui.model.Answer;
+import gui.controller.CalcButtonController;
+import gui.controller.ClearButtonController;
+import gui.controller.EqualButtonController;
 import gui.model.Expression;
 import gui.model.Model;
 import gui.view.button.ClearButton;
@@ -18,6 +19,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -28,20 +31,19 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
 @SuppressWarnings("serial")
-public class View extends JFrame {
+public class View extends JFrame implements Observer {
 
     private static final String LOOK_AND_FEEL = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
     private static final String TITLE = "Calculator";
 
     private final Model model;
-    private final Controller controller;
 
     private JTextField textField = new JTextField("");
     private JPanel operationPanel = new JPanel();
 
     public View() {
-        model = new Model();
-        controller = new Controller(model, this);
+        this.model = new Model();
+        model.addObserver(this);
 
         setLookAndFeel(LOOK_AND_FEEL);
 
@@ -61,17 +63,10 @@ public class View extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    public void update() {
+    @Override
+    public void update(Observable o, Object arg) {
         Expression expr = model.getExpression();
-        Answer ans = model.getAnswer();
-
-        if (ans == null) {
-            textField.setText(expr.toString());
-        } else {
-            textField.setText(ans.toString());
-            expr.setString(ans.toString());
-            model.setAnswer(null);
-        }
+        textField.setText(expr.toString());
         repaint();
     }
 
@@ -108,113 +103,135 @@ public class View extends JFrame {
 
         // "AC"
         {
-            JButton button = new ClearButton("AC", controller);
+            JButton button = new ClearButton("AC");
             setGridBag(operationPanel, button, layout, constraints, 4, 0, 1, 1);
+            button.addActionListener(new ClearButtonController(model));
         }
         // "CE"
         {
-            JButton button = new ClearButton("CE", controller);
+            JButton button = new ClearButton("CE");
             setGridBag(operationPanel, button, layout, constraints, 3, 0, 1, 1);
+            button.addActionListener(new ClearButtonController(model));
         }
         // "0"
         {
-            JButton button = new NumberButton("0", controller);
+            JButton button = new NumberButton("0");
             setGridBag(operationPanel, button, layout, constraints, 0, 4, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "1"
         {
-            JButton button = new NumberButton("1", controller);
+            JButton button = new NumberButton("1");
             setGridBag(operationPanel, button, layout, constraints, 0, 3, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "2"
         {
-            JButton button = new NumberButton("2", controller);
+            JButton button = new NumberButton("2");
             setGridBag(operationPanel, button, layout, constraints, 1, 3, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "3"
         {
-            JButton button = new NumberButton("3", controller);
+            JButton button = new NumberButton("3");
             setGridBag(operationPanel, button, layout, constraints, 2, 3, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "4"
         {
-            JButton button = new NumberButton("4", controller);
+            JButton button = new NumberButton("4");
             setGridBag(operationPanel, button, layout, constraints, 0, 2, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "5"
         {
-            JButton button = new NumberButton("5", controller);
+            JButton button = new NumberButton("5");
             setGridBag(operationPanel, button, layout, constraints, 1, 2, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "6"
         {
-            JButton button = new NumberButton("6", controller);
+            JButton button = new NumberButton("6");
             setGridBag(operationPanel, button, layout, constraints, 2, 2, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "7"
         {
-            JButton button = new NumberButton("7", controller);
+            JButton button = new NumberButton("7");
             setGridBag(operationPanel, button, layout, constraints, 0, 1, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "8"
         {
-            JButton button = new NumberButton("8", controller);
+            JButton button = new NumberButton("8");
             setGridBag(operationPanel, button, layout, constraints, 1, 1, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "9"
         {
-            JButton button = new NumberButton("9", controller);
+            JButton button = new NumberButton("9");
             setGridBag(operationPanel, button, layout, constraints, 2, 1, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "."
         {
-            JButton button = new NumberButton(".", controller);
+            JButton button = new NumberButton(".");
             setGridBag(operationPanel, button, layout, constraints, 1, 4, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "+"
         {
-            JButton button = new OperatorButton("+", controller);
+            JButton button = new OperatorButton("+");
             setGridBag(operationPanel, button, layout, constraints, 3, 1, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "-"
         {
-            JButton button = new OperatorButton("-", controller);
+            JButton button = new OperatorButton("-");
             setGridBag(operationPanel, button, layout, constraints, 4, 1, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "*"
         {
-            JButton button = new OperatorButton("*", controller);
+            JButton button = new OperatorButton("*");
             setGridBag(operationPanel, button, layout, constraints, 3, 2, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "/"
         {
-            JButton button = new OperatorButton("/", controller);
+            JButton button = new OperatorButton("/");
             setGridBag(operationPanel, button, layout, constraints, 4, 2, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "%"
         {
-            JButton button = new OperatorButton("%", controller);
+            JButton button = new OperatorButton("%");
             setGridBag(operationPanel, button, layout, constraints, 3, 3, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "^"
         {
-            JButton button = new OperatorButton("^", controller);
+            JButton button = new OperatorButton("^");
             setGridBag(operationPanel, button, layout, constraints, 4, 3, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "("
         {
-            JButton button = new OperatorButton("(", controller);
+            JButton button = new OperatorButton("(");
             setGridBag(operationPanel, button, layout, constraints, 3, 4, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // ")"
         {
-            JButton button = new OperatorButton(")", controller);
+            JButton button = new OperatorButton(")");
             setGridBag(operationPanel, button, layout, constraints, 4, 4, 1, 1);
+            button.addActionListener(new CalcButtonController(model, button));
         }
         // "="
         {
-            JButton button = new EqualButton("=", controller);
+            JButton button = new EqualButton("=");
             setGridBag(operationPanel, button, layout, constraints, 2, 4, 1, 1);
+            button.addActionListener(new EqualButtonController(model));
         }
 
         operationPanel.setLayout(layout);
