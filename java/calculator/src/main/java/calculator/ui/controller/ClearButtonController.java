@@ -1,9 +1,9 @@
-package gui.controller;
-
-import gui.model.Model;
+package calculator.ui.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import calculator.ui.model.Model;
 
 public class ClearButtonController implements ActionListener {
 

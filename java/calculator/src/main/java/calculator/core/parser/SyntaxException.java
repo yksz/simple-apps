@@ -1,4 +1,4 @@
-package calculator.parser;
+package calculator.core.parser;
 
 @SuppressWarnings("serial")
 public class SyntaxException extends Exception {

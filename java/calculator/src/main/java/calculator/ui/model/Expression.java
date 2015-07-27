@@ -1,4 +1,4 @@
-package gui.model;
+package calculator.ui.model;
 
 public class Expression {
 

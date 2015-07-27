@@ -1,4 +1,4 @@
-package calculator.lexer;
+package calculator.core.lexer;
 
 
 public class Token {

@@ -1,12 +1,12 @@
-package calculator;
+package calculator.core;
 
 import java.math.BigDecimal;
 import java.util.Queue;
 import java.util.Stack;
 
-import calculator.lexer.Operator;
-import calculator.parser.SyntaxException;
-import calculator.parser.SyntaxParser;
+import calculator.core.lexer.Operator;
+import calculator.core.parser.SyntaxException;
+import calculator.core.parser.SyntaxParser;
 
 public final class Calculator {
 

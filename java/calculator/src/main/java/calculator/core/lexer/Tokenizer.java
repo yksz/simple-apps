@@ -1,8 +1,8 @@
-package calculator.lexer;
+package calculator.core.lexer;
 
 import java.util.NoSuchElementException;
 
-import calculator.lexer.Token.Type;
+import calculator.core.lexer.Token.Type;
 
 public class Tokenizer {
 

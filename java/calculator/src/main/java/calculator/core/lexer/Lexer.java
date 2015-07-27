@@ -1,4 +1,4 @@
-package calculator.lexer;
+package calculator.core.lexer;
 
 import java.util.ArrayList;
 import java.util.List;

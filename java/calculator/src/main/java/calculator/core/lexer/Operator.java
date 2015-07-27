@@ -1,4 +1,4 @@
-package calculator.lexer;
+package calculator.core.lexer;
 
 public enum Operator {
     UNKNOWN ("unknown", 0, null),

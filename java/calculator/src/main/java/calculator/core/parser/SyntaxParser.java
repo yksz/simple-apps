@@ -1,4 +1,4 @@
-package calculator.parser;
+package calculator.core.parser;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
-import calculator.lexer.Lexer;
-import calculator.lexer.Operator;
-import calculator.lexer.Operator.Associativity;
-import calculator.lexer.Token;
+import calculator.core.lexer.Lexer;
+import calculator.core.lexer.Operator;
+import calculator.core.lexer.Token;
+import calculator.core.lexer.Operator.Associativity;
 
 public class SyntaxParser {
 

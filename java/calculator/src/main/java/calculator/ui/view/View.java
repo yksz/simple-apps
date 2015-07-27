@@ -1,14 +1,4 @@
-package gui.view;
-
-import gui.controller.CalcButtonController;
-import gui.controller.ClearButtonController;
-import gui.controller.EqualButtonController;
-import gui.model.Expression;
-import gui.model.Model;
-import gui.view.button.ClearButton;
-import gui.view.button.EqualButton;
-import gui.view.button.NumberButton;
-import gui.view.button.OperatorButton;
+package calculator.ui.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,6 +19,16 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
+
+import calculator.ui.controller.CalcButtonController;
+import calculator.ui.controller.ClearButtonController;
+import calculator.ui.controller.EqualButtonController;
+import calculator.ui.model.Expression;
+import calculator.ui.model.Model;
+import calculator.ui.view.button.ClearButton;
+import calculator.ui.view.button.EqualButton;
+import calculator.ui.view.button.NumberButton;
+import calculator.ui.view.button.OperatorButton;
 
 @SuppressWarnings("serial")
 public class View extends JFrame implements Observer {

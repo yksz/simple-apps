@@ -1,10 +1,10 @@
-package gui.model;
+package calculator.ui.model;
 
 import java.math.BigDecimal;
 import java.util.Observable;
 
-import calculator.Calculator;
-import calculator.parser.SyntaxException;
+import calculator.core.Calculator;
+import calculator.core.parser.SyntaxException;
 
 public class Model extends Observable {
 

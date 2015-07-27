@@ -1,5 +1,5 @@
-import gui.view.View;
-import calculator.parser.SyntaxException;
+import calculator.core.parser.SyntaxException;
+import calculator.ui.view.View;
 
 public class Main {
 
