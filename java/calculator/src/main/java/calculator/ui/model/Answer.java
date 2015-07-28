@@ -2,23 +2,23 @@ package calculator.ui.model;
 
 import java.math.BigDecimal;
 
-public class Answer {
+class Answer {
 
-    private String string;
+    private String str;
 
     public Answer(BigDecimal num) {
         if (num == null)
-            this.string = "";
+            this.str = "";
         else
-            this.string = deleteDotZero(num.toString());
+            this.str = deleteDotZero(num.toString());
     }
 
     public Answer(String string) {
-        this.string = string;
+        this.str = string;
     }
 
     public String toString() {
-        return string;
+        return str;
     }
 
     private String deleteDotZero(String decimal) {

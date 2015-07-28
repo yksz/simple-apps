@@ -5,21 +5,21 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import calculator.ui.model.Model;
+import calculator.ui.model.Expression;
 
 public class CalcButtonController implements ActionListener {
 
-    private final Model model;
+    private final Expression expr;
     private final JButton button;
 
-    public CalcButtonController(Model model, JButton button) {
-        this.model = model;
+    public CalcButtonController(Expression expr, JButton button) {
+        this.expr = expr;
         this.button = button;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        model.appendToExpression(button.getText());
+        expr.append(button.getText());
     }
 
 }

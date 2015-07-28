@@ -1,6 +1,12 @@
 package calculator.ui.model;
 
-public class Expression {
+import java.math.BigDecimal;
+import java.util.Observable;
+
+import calculator.core.Calculator;
+import calculator.core.parser.SyntaxException;
+
+public class Expression extends Observable {
 
     private final StringBuilder builder;
 
@@ -8,26 +14,45 @@ public class Expression {
         builder = new StringBuilder();
     }
 
-    Expression append(String str) {
+    public void append(String str) {
         builder.append(str);
-        return this;
+        setChanged();
+        notifyObservers();
     }
 
-    Expression clear() {
+    public void clear() {
         builder.delete(0, builder.length());
-        return this;
+        setChanged();
+        notifyObservers();
     }
 
-    Expression deleteLastChar() {
+    public void deleteLastChar() {
         if (builder.length() > 0)
             builder.deleteCharAt(builder.length() - 1);
-        return this;
+        setChanged();
+        notifyObservers();
     }
 
-    Expression setString(String str) {
+    public void calculate() {
+        Answer ans;
+        try {
+            BigDecimal num = Calculator.calculate(builder.toString());
+            ans = new Answer(num);
+        } catch (ArithmeticException e) {
+            e.printStackTrace();
+            ans = new Answer("Math ERROR");
+        } catch (SyntaxException e) {
+            e.printStackTrace();
+            ans = new Answer("Syntax ERROR");
+        }
+        set(ans.toString());
+        setChanged();
+        notifyObservers();
+    }
+
+    private void set(String str) {
         clear();
         append(str);
-        return this;
     }
 
     public String toString() {

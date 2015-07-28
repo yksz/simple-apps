@@ -3,19 +3,19 @@ package calculator.ui.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import calculator.ui.model.Model;
+import calculator.ui.model.Expression;
 
 public class EqualButtonController implements ActionListener {
 
-    private final Model model;
+    private final Expression expr;
 
-    public EqualButtonController(Model model) {
-        this.model = model;
+    public EqualButtonController(Expression expr) {
+        this.expr = expr;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        model.calculate();
+        expr.calculate();
     }
 
 }

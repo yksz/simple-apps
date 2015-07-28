@@ -3,22 +3,22 @@ package calculator.ui.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import calculator.ui.model.Model;
+import calculator.ui.model.Expression;
 
 public class ClearButtonController implements ActionListener {
 
-    private final Model model;
+    private final Expression expr;
 
-    public ClearButtonController(Model model) {
-        this.model = model;
+    public ClearButtonController(Expression expr) {
+        this.expr = expr;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() == "AC")
-            model.clearExpression();
+            expr.clear();
         else if (e.getActionCommand() == "CE")
-            model.deleteLastCharOfExpression();
+            expr.deleteLastChar();
         else
             ;
     }
